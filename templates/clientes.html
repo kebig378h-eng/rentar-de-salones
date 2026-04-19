@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block titulo %}Clientes{% endblock %}
+{% block contenido %}
+<h2>👥 Clientes</h2>
+
+<div class="dash-grid" style="margin-bottom:24px">
+    <div class="dash-panel">
+        <div class="dash-panel-header"><h3 class="dash-panel-title">Registrar Cliente</h3></div>
+        <div class="dash-panel-body">
+            <form method="POST">
+                <label>Nombre completo</label>
+                <input type="text" name="nombre" placeholder="Nombre del cliente" required>
+                <label>Teléfono</label>
+                <input type="text" name="telefono" placeholder="Ej. 4421234567" required>
+                <label>Correo</label>
+                <input type="email" name="correo" placeholder="correo@email.com" required>
+                <button type="submit">Guardar Cliente</button>
+            </form>
+        </div>
+    </div>
+    <div class="dash-panel">
+        <div class="dash-panel-header">
+            <h3 class="dash-panel-title">Lista de Clientes</h3>
+        </div>
+        <div class="dash-panel-body">
+            <input type="text" id="buscador" placeholder="🔍 Buscar cliente..." oninput="filtrar()" style="margin-bottom:12px">
+            {% if clientes %}
+            <ul id="listaClientes">
+                {% for c in clientes %}
+                <li class="lista-item" data-nombre="{{ c.nombre | lower }}">
+                    <div>
+                        <strong>{{ c.nombre }}</strong><br>
+                        <small>📞 {{ c.telefono }} · 📧 {{ c.correo }}</small>
+                    </div>
+                    <div class="item-acciones">
+                        <a href="/clientes/editar/{{ c.id }}" class="btn-accion btn-editar">✏️</a>
+                        <form method="POST" action="/clientes/eliminar/{{ c.id }}" onsubmit="return confirm('¿Eliminar a {{ c.nombre }}?')">
+                            <button type="submit" class="btn-accion btn-eliminar">🗑️</button>
+                        </form>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No hay clientes registrados aún.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function filtrar() {
+    const q = document.getElementById('buscador').value.toLowerCase();
+    document.querySelectorAll('#listaClientes .lista-item').forEach(li => {
+        li.style.display = li.dataset.nombre.includes(q) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

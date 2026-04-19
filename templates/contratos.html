@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block titulo %}Contratos{% endblock %}
+{% block contenido %}
+<h2>📄 Contratos</h2>
+<div class="dash-grid" style="margin-bottom:24px">
+    <div class="dash-panel">
+        <div class="dash-panel-header"><h3 class="dash-panel-title">Generar Contrato</h3></div>
+        <div class="dash-panel-body">
+            <form method="POST">
+                <label>Reservación</label>
+                <select name="reservacion" required>
+                    <option value="">Selecciona una reservación</option>
+                    {% for r in reservaciones %}
+                    <option value="{{ r.id }}">{{ r.cliente }} — {{ r.fecha }}</option>
+                    {% endfor %}
+                </select>
+                <label>Fecha del contrato</label>
+                <input type="date" name="fecha" required>
+                <label>Condiciones adicionales</label>
+                <textarea name="condiciones" rows="4" placeholder="Servicios incluidos, restricciones especiales..."></textarea>
+                <button type="submit">Guardar Contrato</button>
+            </form>
+        </div>
+    </div>
+    <div class="dash-panel">
+        <div class="dash-panel-header"><h3 class="dash-panel-title">Contratos Generados</h3></div>
+        <div class="dash-panel-body">
+            {% if contratos %}
+            <ul>
+                {% for c in contratos %}
+                <li class="lista-item">
+                    <div>
+                        <strong>Contrato #{{ c.id }}</strong><br>
+                        <small>👤 {{ c.cliente }} · 📅 {{ c.fecha_contrato }}</small>
+                    </div>
+                    <a href="/contratos/generar/{{ c.id }}" class="btn-accion btn-editar" title="Descargar PDF">⬇️</a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No hay contratos registrados aún.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

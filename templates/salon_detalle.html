@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block titulo %}{{ salon.nombre }}{% endblock %}
+{% block head_extra %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <style>
+        .estrellas { color:#f39c12; font-size:18px; letter-spacing:2px; }
+        .resena-card { background:#f9f9f9; border-radius:8px; padding:12px 14px; margin:8px 0; }
+        .resena-card .autor { font-size:13px; font-weight:600; }
+        .resena-card .fecha { font-size:11px; color:#aaa; margin-left:8px; }
+        .resena-card .comentario { font-size:13px; color:#555; margin-top:4px; }
+        .star-select { display:flex; gap:6px; font-size:28px; cursor:pointer; margin:8px 0; }
+        .star-select span { color:#ddd; transition:color 0.1s; }
+        .star-select span.activa { color:#f39c12; }
+    </style>
+{% endblock %}
+{% block contenido %}
+
+<div class="dash-panel" style="margin-top:16px">
+    <div class="dash-panel-body">
+        {% if salon.imagen %}
+        <img src="/static/uploads/{{ salon.imagen }}"
+             style="width:100%;height:280px;object-fit:cover;border-radius:10px;margin-bottom:20px">
+        {% endif %}
+
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+            <div>
+                <h2 style="margin:0 0 4px">{{ salon.nombre }}</h2>
+                <p style="margin:0;color:#777;font-size:14px">
+                    Dueño: {{ salon.dueno_nombre or 'No disponible' }}
+                </p>
+                <div class="estrellas" style="margin-top:6px">
+                    {% for i in range(1, 6) %}
+                        {{ '★' if i <= promedio else '☆' }}
+                    {% endfor %}
+                    <span style="font-size:13px;color:#888;margin-left:6px">
+                        {{ promedio }}/5 ({{ total_resenas }} reseña{{ 's' if total_resenas != 1 else '' }})
+                    </span>
+                </div>
+            </div>
+            <div style="text-align:right">
+                <div style="font-size:30px;font-weight:700;color:#1abc9c">${{ salon.precio }}</div>
+                <div style="font-size:13px;color:#888">por evento</div>
+            </div>
+        </div>
+
+        <hr style="margin:16px 0;border:none;border-top:1px solid #eee">
+
+        {% if salon.capacidad %}
+        <div style="display:inline-block;background:#ecf0f1;padding:8px 14px;border-radius:8px;font-size:14px;margin-bottom:16px">
+            👥 Capacidad: <strong>{{ salon.capacidad }} personas</strong>
+        </div>
+        {% endif %}
+
+        {% if salon.descripcion %}
+        <p style="color:#444;line-height:1.7;margin-bottom:20px">{{ salon.descripcion }}</p>
+        {% endif %}
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px">
+            <a href="/reservaciones?salon={{ salon.id }}" class="btn-primary">📅 Reservar Ahora</a>
+            <a href="/chat/{{ salon.id }}" class="btn-secondary">💬 Enviar Mensaje</a>
+        </div>
+
+        <div id="mapa-detalle" style="height:240px;border-radius:10px;margin-bottom:24px"></div>
+
+        <!-- Reseñas existentes -->
+        <hr style="margin:20px 0;border:none;border-top:1px solid #eee">
+        <h3 style="margin-bottom:12px">⭐ Reseñas ({{ total_resenas }})</h3>
+
+        {% if resenas %}
+            {% for r in resenas %}
+            <div class="resena-card">
+                <div>
+                    <span class="autor">{{ r.autor }}</span>
+                    <span class="fecha">{{ r.fecha.strftime('%d/%m/%Y') if r.fecha else '' }}</span>
+                    <span class="estrellas" style="font-size:14px;margin-left:8px">
+                        {% for i in range(1,6) %}{{ '★' if i <= r.calificacion else '☆' }}{% endfor %}
+                    </span>
+                </div>
+                {% if r.comentario %}
+                <p class="comentario">{{ r.comentario }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+            <p style="color:#aaa;font-size:14px">Este salón aún no tiene reseñas.</p>
+        {% endif %}
+
+        <!-- Formulario de calificación solo para clientes -->
+        {% if session.get('rol') == 'cliente' %}
+        <hr style="margin:20px 0;border:none;border-top:1px solid #eee">
+        <h3>Tu calificación</h3>
+        <form method="POST" action="/salon/{{ salon.id }}/calificar" style="max-width:420px">
+            <label>Selecciona una puntuación</label>
+            <div class="star-select" id="starSelect">
+                {% for i in range(1,6) %}
+                <span data-val="{{ i }}" onclick="seleccionarEstrella({{ i }})">★</span>
+                {% endfor %}
+            </div>
+            <input type="hidden" name="calificacion" id="calificacionInput" required>
+            <label>Comentario (opcional)</label>
+            <textarea name="comentario" rows="3" placeholder="Cuéntanos tu experiencia..."></textarea>
+            <button type="submit">Enviar Reseña</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+const lat = {{ salon.latitud or 20.5888 }};
+const lng = {{ salon.longitud or -100.3899 }};
+const map = L.map('mapa-detalle').setView([lat, lng], 16);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap' }).addTo(map);
+L.marker([lat, lng]).addTo(map).bindPopup('{{ salon.nombre }}').openPopup();
+
+function seleccionarEstrella(val) {
+    document.getElementById('calificacionInput').value = val;
+    document.querySelectorAll('#starSelect span').forEach((s, i) => {
+        s.classList.toggle('activa', i < val);
+    });
+}
+</script>
+{% endblock %}

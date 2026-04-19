@@ -1,0 +1,14 @@
+# Variables de entorno — nunca subir al repositorio
+.env
+
+# Archivos de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Uploads de usuarios
+static/uploads/
+
+# Entornos virtuales
+venv/
+env/

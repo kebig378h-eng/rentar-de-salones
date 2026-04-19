@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block titulo %}API Docs{% endblock %}
+{% block contenido %}
+
+<div class="dashboard-header">
+    <h1 class="dashboard-title">🔗 API REST — EventoSuite</h1>
+    <p class="dashboard-sub">Endpoints disponibles para integración con apps móviles u otros sistemas.</p>
+</div>
+
+<div class="dash-panel" style="margin-bottom:20px">
+    <div class="dash-panel-header"><h3 class="dash-panel-title">Autenticación</h3></div>
+    <div class="dash-panel-body">
+        <p style="font-size:14px;color:var(--color-texto-sec);margin:0 0 12px">
+            Puedes autenticarte de dos formas: con sesión activa (navegador) o con un token en el header.
+        </p>
+        <div style="background:var(--color-lista);border-radius:var(--radio);padding:12px 16px;font-family:monospace;font-size:13px">
+            X-API-Token: tu_token_secreto
+        </div>
+        <p style="font-size:12px;color:var(--color-texto-sec);margin-top:8px">
+            Configura <strong>API_TOKEN</strong> en tu archivo <code>.env</code> para habilitar acceso por token.
+        </p>
+    </div>
+</div>
+
+<div class="dash-panel" style="margin-bottom:20px">
+    <div class="dash-panel-header"><h3 class="dash-panel-title">Endpoints disponibles</h3></div>
+    <div class="dash-panel-body">
+
+        <div class="api-endpoint">
+            <span class="api-method method-get">GET</span>
+            <span class="api-url">/api/v1/estado</span>
+            <span class="api-desc">Health check — verifica que la API funcione</span>
+        </div>
+
+        <div class="api-endpoint">
+            <span class="api-method method-get">GET</span>
+            <span class="api-url">/api/v1/salones</span>
+            <span class="api-desc">Lista todos los salones con promedio de calificación</span>
+        </div>
+
+        <div class="api-endpoint">
+            <span class="api-method method-get">GET</span>
+            <span class="api-url">/api/v1/salones/&lt;id&gt;</span>
+            <span class="api-desc">Detalle completo de un salón específico</span>
+        </div>
+
+        <div class="api-endpoint">
+            <span class="api-method method-get">GET</span>
+            <span class="api-url">/api/v1/reservaciones</span>
+            <span class="api-desc">Lista todas las reservaciones</span>
+        </div>
+
+        <div class="api-endpoint">
+            <span class="api-method method-get">GET</span>
+            <span class="api-url">/api/v1/reservaciones?salon_id=&lt;id&gt;</span>
+            <span class="api-desc">Reservaciones filtradas por salón</span>
+        </div>
+
+    </div>
+</div>
+
+<div class="dash-panel">
+    <div class="dash-panel-header"><h3 class="dash-panel-title">Ejemplo de respuesta — /api/v1/salones</h3></div>
+    <div class="dash-panel-body">
+        <pre style="background:var(--color-lista);border-radius:var(--radio);padding:16px;font-size:12px;overflow-x:auto;margin:0">{
+  "ok": true,
+  "total": 3,
+  "salones": [
+    {
+      "id": 1,
+      "nombre": "Salón Fiesta Real",
+      "precio": 8500.00,
+      "latitud": 20.5888,
+      "longitud": -100.3899,
+      "capacidad": 200,
+      "promedio": 4.5,
+      "total_resenas": 12
+    }
+  ]
+}</pre>
+    </div>
+</div>
+
+{% endblock %}

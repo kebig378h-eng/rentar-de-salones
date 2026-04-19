@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block titulo %}Crear Cuenta{% endblock %}
+{% block contenido %}
+<div class="auth-card">
+    <div class="auth-header">
+        <span style="font-size:36px">📝</span>
+        <h2>Crear cuenta</h2>
+        <p>Únete a EventoSuite</p>
+    </div>
+    <form method="POST" onsubmit="return validar()">
+        <label>Nombre completo</label>
+        <input type="text" name="nombre" placeholder="Tu nombre" required>
+        <label>Correo electrónico</label>
+        <input type="email" name="correo" placeholder="correo@ejemplo.com" required>
+        <label>Contraseña</label>
+        <input type="password" name="password" id="password" placeholder="Mínimo 6 caracteres" required>
+        <span id="errorPass" class="input-error" style="display:none">La contraseña debe tener al menos 6 caracteres</span>
+        <label>Tipo de cuenta</label>
+        <select name="rol">
+            <option value="cliente">Cliente — quiero rentar salones</option>
+            <option value="dueno">Dueño — quiero publicar mi salón</option>
+        </select>
+        <button type="submit">Crear cuenta</button>
+    </form>
+    <p class="auth-footer">¿Ya tienes cuenta? <a href="/login">Inicia sesión</a></p>
+</div>
+<script>
+function validar() {
+    const p = document.getElementById('password');
+    const e = document.getElementById('errorPass');
+    if (p.value.length < 6) {
+        e.style.display = 'block';
+        return false;
+    }
+    e.style.display = 'none';
+    return true;
+}
+</script>
+{% endblock %}

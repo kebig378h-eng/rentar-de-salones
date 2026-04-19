@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block titulo %}Panel Administrador{% endblock %}
+
+{% block contenido %}
+<h1>🛠️ Panel Administrador</h1>
+<p>Bienvenido al sistema de administración. Aquí puedes controlar todo el sistema.</p>
+
+<div class="stats">
+    <div class="stat-card blue">
+        <h3>👤 Clientes</h3>
+        <h2>{{ total_clientes }}</h2>
+    </div>
+    <div class="stat-card green">
+        <h3>📅 Eventos</h3>
+        <h2>{{ total_reservaciones }}</h2>
+    </div>
+    <div class="stat-card orange">
+        <h3>💰 Ingresos</h3>
+        <h2>$ {{ ingresos | round(2) }}</h2>
+    </div>
+</div>
+
+<hr>
+<h2>⚡ Accesos rápidos</h2>
+
+<div class="stats">
+    <a href="/clientes"     class="stat-card blue">👤 Gestionar Clientes</a>
+    <a href="/reservaciones" class="stat-card green">📅 Ver Reservaciones</a>
+    <a href="/pagos"        class="stat-card orange">💰 Administrar Pagos</a>
+    <a href="/contratos"    class="stat-card red">📄 Gestionar Contratos</a>
+</div>
+{% endblock %}

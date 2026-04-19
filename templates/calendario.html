@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titulo %}Calendario{% endblock %}
+{% block head_extra %}
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+{% endblock %}
+{% block contenido %}
+<h2>📅 Calendario de Eventos</h2>
+<div class="dash-panel" style="margin-top:16px">
+    <div class="dash-panel-body">
+        <div id="calendar"></div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const eventos = {{ eventos | default([]) | tojson }};
+    const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        initialView: 'dayGridMonth',
+        locale: 'es',
+        headerToolbar: { left:'prev,next today', center:'title', right:'dayGridMonth,timeGridWeek' },
+        events: eventos,
+        eventClick: function(info) {
+            alert('Evento: ' + info.event.title + '\nFecha: ' + info.event.start.toLocaleDateString());
+        }
+    });
+    calendar.render();
+});
+</script>
+{% endblock %}
