@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block titulo %}Iniciar Sesión{% endblock %}
+{% block contenido %}
+<div class="auth-card">
+    <div class="auth-header">
+        <span style="font-size:36px">🎪</span>
+        <h2>EventoSuite</h2>
+        <p>Inicia sesión para continuar</p>
+    </div>
+    <form method="POST">
+        <label>Correo electrónico</label>
+        <input type="email" name="correo" placeholder="correo@ejemplo.com" required autofocus>
+        <label>Contraseña</label>
+        <input type="password" name="password" placeholder="Tu contraseña" required>
+        <button type="submit">Iniciar sesión</button>
+    </form>
+    <p class="auth-footer">¿No tienes cuenta? <a href="/registro">Regístrate aquí</a></p>
+</div>
+{% endblock %}

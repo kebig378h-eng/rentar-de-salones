@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block titulo %}Reservaciones{% endblock %}
+{% block contenido %}
+<h2>📅 Reservaciones</h2>
+
+<div class="dash-grid" style="margin-bottom:24px">
+    <div class="dash-panel">
+        <div class="dash-panel-header"><h3 class="dash-panel-title">Nueva Reservación</h3></div>
+        <div class="dash-panel-body">
+            <form method="POST">
+                <label>Cliente</label>
+                <select name="cliente" required>
+                    <option value="">Selecciona un cliente</option>
+                    {% for c in clientes %}
+                    <option value="{{ c.nombre }}">{{ c.nombre }}</option>
+                    {% endfor %}
+                </select>
+                <label>Salón</label>
+                <select name="salon" required>
+                    <option value="">Selecciona un salón</option>
+                    {% for s in salones %}
+                    <option value="{{ s.id }}" {% if salon_seleccionado == s.id|string %}selected{% endif %}>
+                        {{ s.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <label>Fecha</label>
+                <input type="date" name="fecha" required>
+                <label>Tipo de evento</label>
+                <input type="text" name="tipo" placeholder="Ej. Boda, Cumpleaños, Conferencia" required>
+                <button type="submit">Reservar</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="dash-panel">
+        <div class="dash-panel-header"><h3 class="dash-panel-title">Reservaciones Registradas</h3></div>
+        <div class="dash-panel-body">
+            <input type="text" id="buscador" placeholder="🔍 Buscar..." oninput="filtrar()" style="margin-bottom:12px">
+            {% if reservaciones %}
+            <ul id="listaRes">
+                {% for r in reservaciones %}
+                <li class="lista-item" data-q="{{ r.cliente | lower }} {{ r.tipo | lower }}">
+                    <div>
+                        <strong>{{ r.cliente }}</strong><br>
+                        <small>📅 {{ r.fecha }} · 🎉 {{ r.tipo }}</small>
+                    </div>
+                    <form method="POST" action="/reservaciones/eliminar/{{ r.id }}" onsubmit="return confirm('¿Eliminar esta reservación?')">
+                        <button type="submit" class="btn-accion btn-eliminar">🗑️</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No hay reservaciones aún.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function filtrar() {
+    const q = document.getElementById('buscador').value.toLowerCase();
+    document.querySelectorAll('#listaRes .lista-item').forEach(li => {
+        li.style.display = li.dataset.q.includes(q) ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block titulo %}Dashboard{% endblock %}
+{% block contenido %}
+
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Sistema de Gestión de Eventos</h1>
+    <p class="dashboard-sub">Administra clientes, reservaciones, pagos y contratos de forma eficiente.</p>
+</div>
+
+<div class="dash-stats">
+    <div class="dash-card dash-blue">
+        <div class="dash-card-icon">👥</div>
+        <div class="dash-card-info">
+            <span class="dash-card-label">Clientes</span>
+            <span class="dash-card-value">{{ total_clientes }}</span>
+        </div>
+    </div>
+    <div class="dash-card dash-green">
+        <div class="dash-card-icon">🎉</div>
+        <div class="dash-card-info">
+            <span class="dash-card-label">Eventos</span>
+            <span class="dash-card-value">{{ total_reservaciones }}</span>
+        </div>
+    </div>
+    <div class="dash-card dash-orange">
+        <div class="dash-card-icon">💰</div>
+        <div class="dash-card-info">
+            <span class="dash-card-label">Ingresos</span>
+            <span class="dash-card-value">${{ ingresos | round(2) }}</span>
+        </div>
+    </div>
+    <div class="dash-card dash-red">
+        <div class="dash-card-icon">📅</div>
+        <div class="dash-card-info">
+            <span class="dash-card-label">Próximo Evento</span>
+            <span class="dash-card-value dash-card-value--sm">{{ proximo_evento }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="dash-grid">
+    <div class="dash-panel">
+        <div class="dash-panel-header"><h3 class="dash-panel-title">📈 Ingresos Mensuales</h3></div>
+        <div class="dash-panel-body">
+            {% if meses %}
+                <canvas id="graficaIngresos" height="200"></canvas>
+            {% else %}
+                <div class="dash-empty"><span>📊</span><p>Sin datos de ingresos aún</p></div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="dash-panel">
+        <div class="dash-panel-header"><h3 class="dash-panel-title">📊 Reservaciones por Mes</h3></div>
+        <div class="dash-panel-body">
+            {% if meses_res %}
+                <canvas id="graficaReservas" height="200"></canvas>
+            {% else %}
+                <div class="dash-empty"><span>📅</span><p>Sin datos de reservaciones aún</p></div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="dash-panel" style="margin-top:20px">
+    <div class="dash-panel-header"><h3 class="dash-panel-title">⚡ Accesos Rápidos</h3></div>
+    <div class="dash-panel-body">
+        <div class="quick-links" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
+            <a href="/clientes"      class="quick-link ql-blue">  <span class="ql-icon">👥</span><div><strong>Clientes</strong><p>Gestiona tus clientes</p></div><span class="ql-arrow">→</span></a>
+            <a href="/reservaciones" class="quick-link ql-green"> <span class="ql-icon">📅</span><div><strong>Reservaciones</strong><p>Administra eventos</p></div><span class="ql-arrow">→</span></a>
+            <a href="/pagos"         class="quick-link ql-orange"><span class="ql-icon">💳</span><div><strong>Pagos</strong><p>Controla ingresos</p></div><span class="ql-arrow">→</span></a>
+            <a href="/contratos"          class="quick-link ql-red">   <span class="ql-icon">📄</span><div><strong>Contratos</strong><p>Genera contratos</p></div><span class="ql-arrow">→</span></a>
+            <a href="/reportes/ingresos"  class="quick-link ql-green"> <span class="ql-icon">📊</span><div><strong>Reporte PDF</strong><p>Descarga ingresos</p></div><span class="ql-arrow">↓</span></a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const meses      = {{ meses      | default([]) | tojson }};
+const montos     = {{ montos     | default([]) | tojson }};
+const mesesRes   = {{ meses_res  | default([]) | tojson }};
+const totalesRes = {{ totales_res| default([]) | tojson }};
+
+if (meses.length) {
+    new Chart(document.getElementById('graficaIngresos'), {
+        type: 'line',
+        data: { labels: meses, datasets: [{ label: 'Ingresos', data: montos,
+            borderColor:'#1abc9c', backgroundColor:'rgba(26,188,156,0.12)',
+            borderWidth:2.5, fill:true, tension:0.4,
+            pointBackgroundColor:'#1abc9c', pointRadius:4 }]},
+        options: { responsive:true, plugins:{ legend:{display:false},
+            tooltip:{ callbacks:{ label: c=>' $'+c.parsed.y.toLocaleString() }}},
+            scales:{ y:{ grid:{color:'rgba(0,0,0,0.05)'},
+                ticks:{callback:v=>'$'+v.toLocaleString(),font:{size:11}}},
+                x:{ grid:{display:false}, ticks:{font:{size:11}} }}}
+    });
+}
+if (mesesRes.length) {
+    new Chart(document.getElementById('graficaReservas'), {
+        type: 'bar',
+        data: { labels: mesesRes, datasets: [{ label: 'Reservaciones', data: totalesRes,
+            backgroundColor:'rgba(52,152,219,0.7)', borderColor:'#3498db',
+            borderWidth:1, borderRadius:6 }]},
+        options: { responsive:true, plugins:{ legend:{display:false}},
+            scales:{ y:{ grid:{color:'rgba(0,0,0,0.05)'},
+                ticks:{font:{size:11},stepSize:1}},
+                x:{ grid:{display:false}, ticks:{font:{size:11}} }}}
+    });
+}
+</script>
+{% endblock %}

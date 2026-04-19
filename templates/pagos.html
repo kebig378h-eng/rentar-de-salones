@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block titulo %}Pagos{% endblock %}
+{% block contenido %}
+<h2>💰 Pagos</h2>
+<div class="dash-grid" style="margin-bottom:24px">
+    <div class="dash-panel">
+        <div class="dash-panel-header"><h3 class="dash-panel-title">Registrar Pago</h3></div>
+        <div class="dash-panel-body">
+            <form method="POST">
+                <label>Reservación</label>
+                <select name="reservacion" required>
+                    <option value="">Selecciona una reservación</option>
+                    {% for r in reservaciones %}
+                    <option value="{{ r.id }}">{{ r.cliente }} — {{ r.fecha }}</option>
+                    {% endfor %}
+                </select>
+                <label>Monto</label>
+                <input type="number" name="monto" step="0.01" placeholder="Ej. 1500.00" required>
+                <label>Tipo de pago</label>
+                <input type="text" name="tipo" placeholder="Efectivo / Transferencia / Tarjeta" required>
+                <label>Fecha</label>
+                <input type="date" name="fecha" required>
+                <button type="submit">Registrar Pago</button>
+            </form>
+        </div>
+    </div>
+    <div class="dash-panel">
+        <div class="dash-panel-header"><h3 class="dash-panel-title">Pagos Registrados</h3></div>
+        <div class="dash-panel-body">
+            {% if pagos %}
+            <ul>
+                {% for p in pagos %}
+                <li class="lista-item">
+                    <div>
+                        <strong>${{ p.monto }}</strong> · {{ p.tipo_pago }}<br>
+                        <small>👤 {{ p.cliente }} · 📅 {{ p.fecha_pago }}</small>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p>No hay pagos registrados aún.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

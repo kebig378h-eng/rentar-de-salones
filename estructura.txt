@@ -1,0 +1,24 @@
+C:\APP EVENTOS
+│   app.py
+│   manual.txt
+│
+├───static
+│   │   style.css
+│   │
+│   └───uploads
+└───templates
+        calendario.html
+        chat.html
+        chat_salon.html
+        clientes.html
+        contratos.html
+        index.html
+        login.html
+        mapa.html
+        mis_salones.html
+        pagos.html
+        panel_admin.html
+        panel_cliente.html
+        panel_dueno.html
+        registro.html
+        reservaciones.html

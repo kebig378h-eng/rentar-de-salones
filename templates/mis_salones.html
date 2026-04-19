@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block titulo %}Mis Salones{% endblock %}
+{% block head_extra %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+{% endblock %}
+{% block contenido %}
+<h2>🏢 Mis Salones</h2>
+
+<div class="dash-panel" style="margin-bottom:24px">
+    <div class="dash-panel-header"><h3 class="dash-panel-title">Agregar Salón</h3></div>
+    <div class="dash-panel-body">
+        <form method="POST" enctype="multipart/form-data">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div>
+                    <label>Nombre del salón</label>
+                    <input type="text" name="nombre" placeholder="Ej. Salón Fiesta" required>
+                </div>
+                <div>
+                    <label>Precio por evento</label>
+                    <input type="number" name="precio" placeholder="Ej. 5000" required>
+                </div>
+            </div>
+            <label>Imagen del salón</label>
+            <input type="file" name="imagen" accept="image/*">
+            <label>Buscar dirección</label>
+            <div class="buscador-row">
+                <input type="text" id="buscar-direccion" placeholder="Ej. Av. Constituyentes 100, Querétaro">
+                <button type="button" onclick="buscarDireccion()">🔍 Buscar</button>
+            </div>
+            <div id="mapa-registro"></div>
+            <p class="coords-info" id="coords-texto">📍 Busca una dirección o haz clic en el mapa</p>
+            <input type="hidden" name="latitud"  id="latitud">
+            <input type="hidden" name="longitud" id="longitud">
+            <button type="submit" id="btn-guardar" disabled onclick="return validarCoordenadas()">
+                Agregar Salón
+            </button>
+        </form>
+    </div>
+</div>
+
+<h3>📋 Mis Salones Registrados</h3>
+{% if salones %}
+    {% for s in salones %}
+    <div class="salon-card">
+        {% if s.imagen %}
+        <img src="/static/uploads/{{ s.imagen }}" alt="{{ s.nombre }}">
+        {% else %}
+        <div class="sin-imagen">🏢</div>
+        {% endif %}
+        <div class="info">
+            <strong>{{ s.nombre }}</strong>
+            <p>💰 ${{ s.precio }}</p>
+            {% if s.latitud and s.longitud %}<p>📍 Ubicación registrada</p>{% endif %}
+        </div>
+        <div style="display:flex;gap:8px;flex-direction:column">
+            <a href="/mis_salones/editar/{{ s.id }}" class="btn-accion btn-editar">✏️ Editar</a>
+            <form method="POST" action="/mis_salones/eliminar/{{ s.id }}" onsubmit="return confirm('¿Eliminar {{ s.nombre }}?')">
+                <button type="submit" class="btn-accion btn-eliminar" style="width:100%">🗑️ Eliminar</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+<p>No tienes salones registrados aún.</p>
+{% endif %}
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+const map = L.map('mapa-registro').setView([20.5888, -100.3899], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap' }).addTo(map);
+const marcador = L.marker([20.5888, -100.3899], { draggable: true });
+
+function mostrarMarcador(lat, lng) {
+    marcador.setLatLng([lat, lng]);
+    if (!map.hasLayer(marcador)) marcador.addTo(map);
+    actualizarCoordenadas(lat, lng);
+}
+
+function actualizarCoordenadas(lat, lng) {
+    document.getElementById('latitud').value  = lat.toFixed(6);
+    document.getElementById('longitud').value = lng.toFixed(6);
+    document.getElementById('coords-texto').textContent = '✅ Ubicación seleccionada — arrastra el marcador para ajustar';
+    const btn = document.getElementById('btn-guardar');
+    btn.disabled = false;
+}
+
+marcador.on('dragend', () => {
+    const p = marcador.getLatLng();
+    actualizarCoordenadas(p.lat, p.lng);
+});
+
+map.on('click', e => mostrarMarcador(e.latlng.lat, e.latlng.lng));
+
+function buscarDireccion() {
+    const texto = document.getElementById('buscar-direccion').value.trim();
+    if (!texto) return;
+    document.getElementById('coords-texto').textContent = '🔍 Buscando...';
+    fetch('https://nominatim.openstreetmap.org/search?format=json&q=' + encodeURIComponent(texto) + '&limit=1')
+        .then(r => r.json())
+        .then(data => {
+            if (!data.length) { document.getElementById('coords-texto').textContent = '❌ No encontrado, sé más específico'; return; }
+            const lat = parseFloat(data[0].lat), lng = parseFloat(data[0].lon);
+            map.setView([lat, lng], 17);
+            mostrarMarcador(lat, lng);
+            marcador.bindPopup('<b>¿Es aquí?</b><br>Arrastra para ajustar').openPopup();
+        })
+        .catch(() => { document.getElementById('coords-texto').textContent = '❌ Error de conexión'; });
+}
+
+document.getElementById('buscar-direccion').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); buscarDireccion(); }
+});
+
+function validarCoordenadas() {
+    if (!document.getElementById('latitud').value) {
+        alert('⚠️ Selecciona la ubicación en el mapa'); return false;
+    }
+    return true;
+}
+</script>
+{% endblock %}

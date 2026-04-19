@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block titulo %}Chat{% endblock %}
+{% block contenido %}
+<h2>💬 Chat General</h2>
+
+<div class="dash-panel" style="margin-top:16px">
+    <div class="dash-panel-body">
+        <div class="chat-box" id="chatBox">
+            {% if mensajes %}
+                {% for m in mensajes %}
+                <div class="mensaje {% if m.emisor_id == user_id %}yo{% else %}otro{% endif %}">
+                    <strong>{{ m.emisor_nombre }}</strong><br>
+                    {{ m.mensaje }}
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align:center;color:#aaa;padding:20px">No hay mensajes aún. ¡Sé el primero!</p>
+            {% endif %}
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:12px">
+            <input type="text" id="inputMensaje" placeholder="Escribe un mensaje..."
+                   style="flex:1" onkeydown="if(event.key==='Enter') enviar()">
+            <button onclick="enviar()" style="width:auto;padding:10px 20px">Enviar</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/socket.io/client-dist/socket.io.min.js"></script>
+<script>
+const socket  = io();
+const chatBox = document.getElementById('chatBox');
+const userId  = {{ user_id }};
+
+function scrollAbajo() {
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+scrollAbajo();
+
+function enviar() {
+    const input   = document.getElementById('inputMensaje');
+    const mensaje = input.value.trim();
+    if (!mensaje) return;
+    socket.emit('enviar_mensaje', { mensaje: mensaje, salon_id: null });
+    input.value = '';
+}
+
+socket.on('recibir_mensaje', data => {
+    const div = document.createElement('div');
+    div.className = 'mensaje ' + (data.user_id === userId ? 'yo' : 'otro');
+    div.innerHTML = `<strong>${data.usuario}</strong><br>${data.mensaje}`;
+    chatBox.appendChild(div);
+    scrollAbajo();
+});
+</script>
+{% endblock %}

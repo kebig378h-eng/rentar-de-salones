@@ -1,0 +1,134 @@
+Manual de Uso e Instalación del Sistema de Gestión de Eventos
+📌 1. Descripción General
+
+El sistema de gestión de eventos permite administrar la renta de salones de manera eficiente, integrando diferentes módulos en una sola plataforma.
+
+🔧 Funcionalidades principales:
+👤 Registro y gestión de clientes
+📅 Creación de reservaciones
+💰 Control de pagos
+📄 Generación de contratos
+🗺️ Visualización de salones en mapa
+📆 Calendario de eventos
+💬 Sistema de chat entre usuarios
+🏢 Gestión de salones por dueño
+⚙️ 2. Requisitos del Sistema
+
+Antes de ejecutar el sistema, asegúrate de contar con:
+
+💻 Software necesario:
+Python 3.10 o superior
+XAMPP (Apache + MySQL)
+Navegador web (Google Chrome recomendado)
+📦 Librerías necesarias:
+Flask
+mysql-connector-python
+📥 3. Instalación de Dependencias
+
+Abrir una terminal y ejecutar:
+
+pip install flask
+pip install mysql-connector-python
+🗄️ 4. Configuración de la Base de Datos
+4.1 Iniciar servicios
+Abrir XAMPP
+Iniciar:
+Apache ✔
+MySQL ✔
+4.2 Crear base de datos
+Ir a:
+http://localhost/phpmyadmin
+Crear una base de datos llamada:
+eventos_db
+4.3 Crear tablas necesarias
+
+El sistema requiere las siguientes tablas:
+
+usuarios
+clientes
+reservaciones
+pagos
+contratos
+salon
+mensajes
+
+(Se recomienda importar un archivo SQL si se cuenta con él)
+
+🚀 5. Ejecución del Sistema
+Abrir terminal en la carpeta del proyecto:
+cd "C:\app eventos"
+Ejecutar:
+python app.py
+Verificar mensaje:
+Running on http://127.0.0.1:5000
+Abrir en el navegador:
+http://127.0.0.1:5000
+🔐 6. Acceso al Sistema
+
+El sistema cuenta con diferentes roles:
+
+👨‍💼 Administrador
+Acceso total al sistema
+Visualización de estadísticas
+Gestión completa
+👤 Cliente
+Ver salones
+Realizar reservaciones
+Comunicarse mediante chat
+🏢 Dueño
+Gestionar sus salones
+Ver reservaciones
+Comunicación con clientes
+🧭 7. Navegación del Sistema
+Módulo	Función
+Inicio	Dashboard con estadísticas
+Clientes	Registro y consulta
+Reservaciones	Gestión de eventos
+Pagos	Control de ingresos
+Contratos	Generación de contratos
+Calendario	Vista mensual
+Mapa	Ubicación de salones
+Chat	Comunicación entre usuarios
+💬 8. Uso del Chat
+Permite comunicación entre usuarios
+Los mensajes se envían automáticamente con el usuario activo
+Existe chat general y chat por salón
+⚠️ 9. Problemas Comunes
+❌ No carga la página
+Verificar que Flask esté en ejecución
+Revisar errores en la terminal
+❌ Error de base de datos
+Confirmar que MySQL esté activo
+Verificar nombre de la base de datos
+❌ No carga el diseño
+Revisar ruta /static/style.css
+Limpiar caché con CTRL + F5
+❌ No se guardan imágenes
+Verificar carpeta:
+/static/uploads
+🔄 10. Reinicio del Sistema
+Detener el servidor con:
+CTRL + C
+Ejecutar nuevamente:
+python app.py
+📌 11. Recomendaciones
+No cerrar XAMPP durante el uso
+Guardar cambios antes de ejecutar
+Mantener organizada la carpeta del proyecto
+🚀 12. Estado del Proyecto
+
+El sistema se encuentra en estado funcional y puede ampliarse con:
+
+💬 Chat en tiempo real
+📄 Generación de contratos en PDF
+📊 Reportes avanzados
+🌐 Implementación en la nube
+👨‍💻 13. Autor
+
+Proyecto desarrollado por:
+
+Kevin Isaac León Casarez y equipo
+
+🎯 Conclusión
+
+Este sistema permite una administración eficiente de eventos, integrando múltiples funcionalidades en una sola plataforma, facilitando la gestión tanto para administradores, dueños y clientes.

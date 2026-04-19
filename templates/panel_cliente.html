@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block titulo %}Panel Cliente{% endblock %}
+{% block contenido %}
+<div class="dashboard-header">
+    <h1 class="dashboard-title">👋 Bienvenido, {{ session.get('usuario') }}</h1>
+    <p class="dashboard-sub">Explora salones, haz reservaciones y comunícate con los dueños.</p>
+</div>
+<div class="dash-stats">
+    <div class="dash-card dash-blue">
+        <div class="dash-card-icon">🗺️</div>
+        <div class="dash-card-info"><span class="dash-card-label">Explorar</span><span class="dash-card-value dash-card-value--sm">Ver Salones</span></div>
+    </div>
+    <div class="dash-card dash-green">
+        <div class="dash-card-icon">📅</div>
+        <div class="dash-card-info"><span class="dash-card-label">Mis</span><span class="dash-card-value dash-card-value--sm">Reservaciones</span></div>
+    </div>
+    <div class="dash-card dash-orange">
+        <div class="dash-card-icon">💬</div>
+        <div class="dash-card-info"><span class="dash-card-label">Chat con</span><span class="dash-card-value dash-card-value--sm">Dueños</span></div>
+    </div>
+</div>
+<div class="dash-panel" style="margin-top:20px">
+    <div class="dash-panel-body">
+        <div class="quick-links" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
+            <a href="/mapa"          class="quick-link ql-blue">  <span class="ql-icon">🗺️</span><div><strong>Explorar Salones</strong><p>Encuentra el salón ideal</p></div><span class="ql-arrow">→</span></a>
+            <a href="/reservaciones" class="quick-link ql-green"> <span class="ql-icon">📅</span><div><strong>Mis Reservaciones</strong><p>Revisa tus eventos</p></div><span class="ql-arrow">→</span></a>
+            <a href="/chat"          class="quick-link ql-orange"><span class="ql-icon">💬</span><div><strong>Mensajes</strong><p>Habla con los dueños</p></div><span class="ql-arrow">→</span></a>
+        </div>
+    </div>
+</div>
+{% endblock %}
