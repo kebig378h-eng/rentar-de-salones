@@ -1,0 +1,7 @@
+Flask 
+flask-socketio 
+flask-mail 
+werkzeug 
+python-dotenv 
+mysql-connector-python 
+python-socketio 
