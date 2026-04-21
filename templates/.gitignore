@@ -1,0 +1,28 @@
+# Variables de entorno — NUNCA subir al repositorio
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# Entornos virtuales
+venv/
+env/
+.venv/
+
+# Uploads de usuarios (imágenes de salones)
+static/uploads/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp

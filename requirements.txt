@@ -1,7 +1,9 @@
-Flask 
-flask-socketio 
-flask-mail 
-werkzeug 
-python-dotenv 
-mysql-connector-python 
-python-socketio 
+flask>=3.0.0
+flask-socketio>=5.3.0
+flask-mail>=0.10.0
+reportlab>=4.0.0
+python-dotenv>=1.0.0
+mysql-connector-python>=8.3.0
+werkzeug>=3.0.0
+gunicorn>=21.2.0
+eventlet>=0.35.0
