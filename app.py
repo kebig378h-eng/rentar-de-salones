@@ -29,13 +29,19 @@ TAMANO_MAXIMO_MB       = 5
 
 
 # ── BD ───────────────────────────────────────────────────────────────────────
+# Lee primero las variables de Railway (MYSQLHOST, etc.)
+# Si no existen, usa las del .env local (DB_HOST, etc.)
 
 def get_db():
+    host     = os.getenv("MYSQLHOST")     or os.getenv("DB_HOST",     "localhost")
+    port     = int(os.getenv("MYSQLPORT") or os.getenv("DB_PORT",     3306))
+    user     = os.getenv("MYSQLUSER")     or os.getenv("DB_USER",     "root")
+    password = os.getenv("MYSQLPASSWORD") or os.getenv("DB_PASSWORD", "")
+    database = os.getenv("MYSQLDATABASE") or os.getenv("DB_NAME",     "eventos_db")
     return mysql.connector.connect(
-        host=os.getenv("DB_HOST"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD"),
-        database=os.getenv("DB_NAME")
+        host=host, port=port,
+        user=user, password=password,
+        database=database
     )
 
 def get_cursor():
@@ -773,4 +779,8 @@ def api_docs():
 # ── RUN ───────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True)
+    # En Railway: PORT viene como variable de entorno
+    # En local: usa el puerto 5000 por defecto
+    port  = int(os.getenv("PORT", 5000))
+    debug = os.getenv("RAILWAY_ENVIRONMENT") is None  # False en Railway, True en local
+    socketio.run(app, host="0.0.0.0", port=port, debug=debug)
