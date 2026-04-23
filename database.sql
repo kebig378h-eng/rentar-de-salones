@@ -1,3 +1,9 @@
+CREATE DATABASE IF NOT EXISTS eventos_db;
+USE eventos_db;
+
+-- =========================
+-- USUARIOS
+-- =========================
 CREATE TABLE usuarios (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -6,6 +12,9 @@ CREATE TABLE usuarios (
     rol ENUM('admin','dueno','cliente') DEFAULT 'cliente'
 );
 
+-- =========================
+-- CLIENTES
+-- =========================
 CREATE TABLE clientes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -13,6 +22,9 @@ CREATE TABLE clientes (
     correo VARCHAR(100)
 );
 
+-- =========================
+-- SALONES
+-- =========================
 CREATE TABLE salon (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -23,37 +35,57 @@ CREATE TABLE salon (
     capacidad INT,
     descripcion TEXT,
     dueno_id INT NOT NULL,
-    FOREIGN KEY (dueno_id) REFERENCES usuarios(id) ON DELETE CASCADE
+    FOREIGN KEY (dueno_id) REFERENCES usuarios(id)
+        ON DELETE CASCADE
 );
 
+-- =========================
+-- RESERVACIONES (MEJORADA)
+-- =========================
 CREATE TABLE reservaciones (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cliente_id INT,
     fecha DATE NOT NULL,
     tipo VARCHAR(100),
     salon_id INT,
-    visto TINYINT DEFAULT 0,
-    FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE SET NULL,
-    FOREIGN KEY (salon_id) REFERENCES salon(id) ON DELETE CASCADE
+    visto TINYINT(1) DEFAULT 0,
+
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+        ON DELETE SET NULL,
+    FOREIGN KEY (salon_id) REFERENCES salon(id)
+        ON DELETE CASCADE
 );
 
+-- =========================
+-- PAGOS
+-- =========================
 CREATE TABLE pagos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     reservacion_id INT NOT NULL,
     monto DECIMAL(10,2) NOT NULL,
     tipo_pago VARCHAR(50),
     fecha_pago DATE,
-    FOREIGN KEY (reservacion_id) REFERENCES reservaciones(id) ON DELETE CASCADE
+
+    FOREIGN KEY (reservacion_id) REFERENCES reservaciones(id)
+        ON DELETE CASCADE
 );
 
+-- =========================
+-- CONTRATOS
+-- =========================
 CREATE TABLE contratos (
     id INT AUTO_INCREMENT PRIMARY KEY,
     reservacion_id INT NOT NULL,
     fecha_contrato DATE,
     condiciones TEXT,
-    FOREIGN KEY (reservacion_id) REFERENCES reservaciones(id) ON DELETE CASCADE
+
+    FOREIGN KEY (reservacion_id) REFERENCES reservaciones(id)
+        ON DELETE CASCADE
 );
 
+-- =========================
+-- MENSAJES
+-- =========================
 CREATE TABLE mensajes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     emisor_id INT NOT NULL,
@@ -61,11 +93,18 @@ CREATE TABLE mensajes (
     salon_id INT,
     mensaje TEXT,
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (emisor_id) REFERENCES usuarios(id),
-    FOREIGN KEY (receptor_id) REFERENCES usuarios(id),
+
+    FOREIGN KEY (emisor_id) REFERENCES usuarios(id)
+        ON DELETE CASCADE,
+    FOREIGN KEY (receptor_id) REFERENCES usuarios(id)
+        ON DELETE SET NULL,
     FOREIGN KEY (salon_id) REFERENCES salon(id)
+        ON DELETE CASCADE
 );
 
+-- =========================
+-- RESEÑAS
+-- =========================
 CREATE TABLE resenas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     salon_id INT,
@@ -73,6 +112,9 @@ CREATE TABLE resenas (
     calificacion TINYINT NOT NULL,
     comentario TEXT,
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (salon_id) REFERENCES salon(id),
+
+    FOREIGN KEY (salon_id) REFERENCES salon(id)
+        ON DELETE CASCADE,
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+        ON DELETE CASCADE
 );

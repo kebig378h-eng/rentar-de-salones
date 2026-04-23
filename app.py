@@ -315,19 +315,7 @@ def reservaciones():
         )
         if cursor.fetchone():
             flash("Ese salón ya está reservado en esa fecha.", "error")
-        else:
-            cursor.execute("""
-                INSERT INTO reservaciones (cliente, cliente_id, fecha, tipo, salon_id)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (cliente_nombre, cliente_id, fecha, tipo, salon))
-            db.commit()
-            flash("Reservación creada.", "success")
-
-        return redirect("/reservaciones")
-
-    # 🔥 GET (IMPORTANTE: soporta ?salon=1)
-    salon_filtro = request.args.get("salon")
-
+        el 
     if session["rol"] == "dueno":
         query = """
             SELECT r.*, c.nombre as cliente_nombre, s.nombre as salon_nombre
