@@ -291,72 +291,85 @@ def editar_cliente(cliente_id):
 
 
 # ── RESERVACIONES ─────────────────────────────────────────────────────────────
-
 @app.route("/reservaciones", methods=["GET", "POST"])
 @roles_permitidos("admin", "dueno", "cliente")
 def reservaciones():
     db, cursor = get_cursor()
 
+    # =========================
+    # CREAR RESERVACIÓN
+    # =========================
     if request.method == "POST":
-        cliente_nombre = request.form["cliente"]
-        fecha = request.form["fecha"]
-        tipo = request.form["tipo"]
+        cliente_nombre = request.form.get("cliente")
+        fecha = request.form.get("fecha")
+        tipo = request.form.get("tipo")
         salon = request.form.get("salon")
 
-        # 🔥 Buscar cliente_id
-        cursor.execute("SELECT id FROM clientes WHERE nombre=%s LIMIT 1", (cliente_nombre,))
-        c = cursor.fetchone()
-        cliente_id = c["id"] if c else None
+        # obtener cliente_id desde usuarios
+        cliente_id = session.get("user_id")
 
-        # 🔥 Validar duplicado
-        cursor.execute(
-            "SELECT id FROM reservaciones WHERE fecha=%s AND salon_id=%s",
-            (fecha, salon)
-        )
+        if not cliente_nombre or not fecha or not salon:
+            flash("Faltan datos", "error")
+            return redirect("/reservaciones")
+
+        # evitar duplicados
+        cursor.execute("""
+            SELECT id FROM reservaciones 
+            WHERE fecha=%s AND salon_id=%s
+        """, (fecha, salon))
+
         if cursor.fetchone():
             flash("Ese salón ya está reservado en esa fecha.", "error")
-        el 
-    if session["rol"] == "dueno":
-        query = """
-            SELECT r.*, c.nombre as cliente_nombre, s.nombre as salon_nombre
-            FROM reservaciones r
-            LEFT JOIN clientes c ON r.cliente_id = c.id
-            JOIN salon s ON r.salon_id = s.id
-            WHERE s.dueno_id=%s
-        """
-        params = [session["user_id"]]
-
-        if salon_filtro:
-            query += " AND r.salon_id=%s"
-            params.append(salon_filtro)
-
-        query += " ORDER BY r.fecha DESC"
-        cursor.execute(query, tuple(params))
-
-    else:
-        query = """
-            SELECT r.*, c.nombre as cliente_nombre, s.nombre as salon_nombre
-            FROM reservaciones r
-            LEFT JOIN clientes c ON r.cliente_id = c.id
-            JOIN salon s ON r.salon_id = s.id
-        """
-
-        if salon_filtro:
-            query += " WHERE r.salon_id=%s"
-            cursor.execute(query + " ORDER BY r.fecha DESC", (salon_filtro,))
         else:
-            cursor.execute(query + " ORDER BY r.fecha DESC")
+            cursor.execute("""
+                INSERT INTO reservaciones 
+                (cliente, cliente_id, fecha, tipo, salon_id)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (cliente_nombre, cliente_id, fecha, tipo, salon))
+
+            db.commit()
+            flash("Reservación creada.", "success")
+
+        return redirect("/reservaciones")
+
+    # =========================
+    # LISTAR SEGÚN ROL
+    # =========================
+    if session["rol"] == "cliente":
+        cursor.execute("""
+            SELECT r.*, s.nombre as salon_nombre
+            FROM reservaciones r
+            JOIN salon s ON r.salon_id = s.id
+            WHERE r.cliente_id = %s
+            ORDER BY r.fecha DESC
+        """, (session["user_id"],))
+
+    elif session["rol"] == "dueno":
+        cursor.execute("""
+            SELECT r.*, s.nombre as salon_nombre
+            FROM reservaciones r
+            JOIN salon s ON r.salon_id = s.id
+            WHERE s.dueno_id = %s
+            ORDER BY r.fecha DESC
+        """, (session["user_id"],))
+
+    else:  # admin
+        cursor.execute("""
+            SELECT r.*, s.nombre as salon_nombre
+            FROM reservaciones r
+            JOIN salon s ON r.salon_id = s.id
+            ORDER BY r.fecha DESC
+        """)
 
     reservaciones = cursor.fetchall()
 
+    # =========================
+    # DATOS PARA FORMULARIO
+    # =========================
     cursor.execute("SELECT * FROM clientes ORDER BY nombre")
     clientes = cursor.fetchall()
 
-    if session["rol"] == "dueno":
-        cursor.execute("SELECT * FROM salon WHERE dueno_id=%s", (session["user_id"],))
-    else:
-        cursor.execute("SELECT * FROM salon")
-
+    cursor.execute("SELECT * FROM salon")
     salones = cursor.fetchall()
 
     cursor.close()
@@ -373,11 +386,29 @@ def reservaciones():
 @roles_permitidos("admin", "dueno", "cliente")
 def eliminar_reservacion(res_id):
     db, cursor = get_cursor()
-    cursor.execute("DELETE FROM reservaciones WHERE id=%s", (res_id,))
-    db.commit(); cursor.close(); db.close()
+
+    if session["rol"] == "cliente":
+        cursor.execute("""
+            DELETE FROM reservaciones 
+            WHERE id=%s AND cliente_id=%s
+        """, (res_id, session["user_id"]))
+
+    elif session["rol"] == "dueno":
+        cursor.execute("""
+            DELETE r FROM reservaciones r
+            JOIN salon s ON r.salon_id = s.id
+            WHERE r.id=%s AND s.dueno_id=%s
+        """, (res_id, session["user_id"]))
+
+    else:  # admin
+        cursor.execute("DELETE FROM reservaciones WHERE id=%s", (res_id,))
+
+    db.commit()
+    cursor.close()
+    db.close()
+
     flash("Reservación eliminada.", "success")
     return redirect("/reservaciones")
-
 
 # ── PAGOS ─────────────────────────────────────────────────────────────────────
 
