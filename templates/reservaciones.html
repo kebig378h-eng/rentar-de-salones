@@ -7,8 +7,9 @@
     <div class="dash-panel">
         <div class="dash-panel-header"><h3 class="dash-panel-title">Nueva Reservación</h3></div>
         <div class="dash-panel-body">
-            <form method="POST">
-                {% if session.rol == "admin" or session.rol == "dueno" %}
+          <form method="POST">
+
+{% if session.rol == "admin" or session.rol == "dueno" %}
     <label>Cliente</label>
     <select name="cliente" required>
         <option value="">Selecciona un cliente</option>
@@ -17,23 +18,26 @@
         {% endfor %}
     </select>
 {% else %}
+    <!-- 👇 AUTOMÁTICO -->
     <input type="hidden" name="cliente" value="{{ session.usuario }}">
 {% endif %}
-                <label>Salón</label>
-               <select name="salon" id="salon" required>
-                    <option value="">Selecciona un salón</option>
-                    {% for s in salones %}
-                    <option value="{{ s.id }}" {% if salon_seleccionado == s.id|string %}selected{% endif %}>
-                        {{ s.nombre }}
-                    </option>
-                    {% endfor %}
-                </select>
-                <label>Fecha</label>
-               <input type="date" name="fecha" id="fecha" required>
-                <label>Tipo de evento</label>
-                <input type="text" name="tipo" placeholder="Ej. Boda, Cumpleaños, Conferencia" required>
-                <button type="submit">Reservar</button>
-            </form>
+
+<label>Salón</label>
+<select name="salon" id="salon" required>
+    <option value="">Selecciona un salón</option>
+    {% for s in salones %}
+    <option value="{{ s.id }}">{{ s.nombre }}</option>
+    {% endfor %}
+</select>
+
+<label>Fecha</label>
+<input type="date" name="fecha" id="fecha" required>
+
+<label>Tipo de evento</label>
+<input type="text" name="tipo" required>
+
+<button type="submit">Reservar</button>
+</form>
         </div>
     </div>
 
@@ -75,23 +79,16 @@ document.addEventListener("DOMContentLoaded", function() {
     const salonSelect = document.getElementById("salon");
     const fechaInput = document.getElementById("fecha");
 
-    if (!salonSelect || !fechaInput) return;
-
-    // cargar fechas cuando cambia salón
     salonSelect.addEventListener("change", async function() {
         const salonId = this.value;
-
         if (!salonId) return;
 
         const res = await fetch(`/api/fechas_ocupadas/${salonId}`);
         fechasOcupadas = await res.json();
     });
 
-    // validar fecha
     fechaInput.addEventListener("input", function() {
-        const fecha = this.value;
-
-        if (fechasOcupadas.includes(fecha)) {
+        if (fechasOcupadas.includes(this.value)) {
             alert("⚠️ Este salón ya está reservado en esa fecha");
             this.value = "";
         }
