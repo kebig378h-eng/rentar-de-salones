@@ -1,76 +1,99 @@
 {% extends "base.html" %}
 {% block titulo %}Reservaciones{% endblock %}
 {% block contenido %}
+
 <h2>📅 Reservaciones</h2>
 
 <div class="dash-grid" style="margin-bottom:24px">
+
+    <!-- ========================= -->
+    <!-- FORMULARIO -->
+    <!-- ========================= -->
     <div class="dash-panel">
-        <div class="dash-panel-header"><h3 class="dash-panel-title">Nueva Reservación</h3></div>
+        <div class="dash-panel-header">
+            <h3 class="dash-panel-title">Nueva Reservación</h3>
+        </div>
+
         <div class="dash-panel-body">
-          <form method="POST">
+            <form method="POST">
 
-{% if session.rol == "admin" or session.rol == "dueno" %}
-    <label>Cliente</label>
-    <select name="cliente" required>
-        <option value="">Selecciona un cliente</option>
-        {% for c in clientes %}
-        <option value="{{ c.nombre }}">{{ c.nombre }}</option>
-        {% endfor %}
-    </select>
-{% else %}
-    <!-- 👇 AUTOMÁTICO -->
-    <input type="hidden" name="cliente" value="{{ session.usuario }}">
-{% endif %}
+                {% if session.rol == "admin" or session.rol == "dueno" %}
+                <label>Cliente</label>
+                <select name="cliente" required>
+                    <option value="">Selecciona un cliente</option>
+                    {% for c in clientes %}
+                    <option value="{{ c.nombre }}">{{ c.nombre }}</option>
+                    {% endfor %}
+                </select>
+                {% else %}
+                <input type="hidden" name="cliente" value="{{ session.usuario }}">
+                {% endif %}
 
-<label>Salón</label>
-<select name="salon" id="salon" required>
-    <option value="">Selecciona un salón</option>
-    {% for s in salones %}
-    <option value="{{ s.id }}">{{ s.nombre }}</option>
-    {% endfor %}
-</select>
+                <label>Salón</label>
+                <select name="salon" id="salon" required>
+                    <option value="">Selecciona un salón</option>
+                    {% for s in salones %}
+                    <option value="{{ s.id }}">{{ s.nombre }}</option>
+                    {% endfor %}
+                </select>
 
-<label>Fecha</label>
-<input type="date" name="fecha" id="fecha" required>
+                <label>Fecha</label>
+                <input type="date" name="fecha" id="fecha" min="{{ today }}" required>
+                <small id="errorFecha" style="color:red;"></small>
 
-<label>Tipo de evento</label>
-<input type="text" name="tipo" required>
+                <label>Tipo de evento</label>
+                <input type="text" name="tipo" required>
 
-<button type="submit">Reservar</button>
-</form>
+                <button type="submit">Reservar</button>
+            </form>
         </div>
     </div>
 
+    <!-- ========================= -->
+    <!-- LISTA -->
+    <!-- ========================= -->
     <div class="dash-panel">
-        <div class="dash-panel-header"><h3 class="dash-panel-title">Reservaciones Registradas</h3></div>
-        <div class="dash-panel-body">
-            <input type="text" id="buscador" placeholder="🔍 Buscar..." oninput="filtrar()" style="margin-bottom:12px">
-            {% if reservaciones %}
-            <ul id="listaRes">
-    {% if session.rol == "cliente" %}
-    <p>Reservando como: <strong>{{ session.usuario }}</strong></p>
-    {% endif %}
-
-    {% for r in reservaciones %}
-    <li class="lista-item" data-q="{{ (r.cliente_nombre or r.cliente) | lower }} {{ r.tipo | lower }}">
-        <div>
-            <strong>{{ r.cliente_nombre or r.cliente }}</strong><br>
-            <small>📅 {{ r.fecha }} · 🎉 {{ r.tipo }}</small>
+        <div class="dash-panel-header">
+            <h3 class="dash-panel-title">Reservaciones Registradas</h3>
         </div>
 
-        <form method="POST" action="/reservaciones/eliminar/{{ r.id }}" onsubmit="return confirm('¿Eliminar esta reservación?')">
-            <button type="submit" class="btn-accion btn-eliminar">🗑️</button>
-        </form>
-    </li>
-    {% endfor %}
-</ul>
+        <div class="dash-panel-body">
+
+            <input type="text" id="buscador" placeholder="🔍 Buscar..." oninput="filtrar()" style="margin-bottom:12px">
+
+            {% if reservaciones %}
+
+            {% if session.rol == "cliente" %}
+            <p>Reservando como: <strong>{{ session.usuario }}</strong></p>
+            {% endif %}
+
+            <ul id="listaRes">
+                {% for r in reservaciones %}
+                <li class="lista-item" data-q="{{ (r.cliente_nombre or r.cliente) | lower }} {{ r.tipo | lower }}">
+                    <div>
+                        <strong>{{ r.cliente_nombre or r.cliente }}</strong><br>
+                        <small>📅 {{ r.fecha }} · 🎉 {{ r.tipo }}</small>
+                    </div>
+
+                    <form method="POST" action="/reservaciones/eliminar/{{ r.id }}" onsubmit="return confirm('¿Eliminar esta reservación?')">
+                        <button type="submit" class="btn-accion btn-eliminar">🗑️</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+
             {% else %}
             <p>No hay reservaciones aún.</p>
             {% endif %}
+
         </div>
     </div>
+
 </div>
 
+<!-- ========================= -->
+<!-- JS -->
+<!-- ========================= -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
 
@@ -78,22 +101,43 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const salonSelect = document.getElementById("salon");
     const fechaInput = document.getElementById("fecha");
+    const errorMsg = document.getElementById("errorFecha");
 
     salonSelect.addEventListener("change", async function() {
         const salonId = this.value;
         if (!salonId) return;
 
-        const res = await fetch(`/api/fechas_ocupadas/${salonId}`);
-        fechasOcupadas = await res.json();
+        try {
+            const res = await fetch(`/api/fechas_ocupadas/${salonId}`);
+            if (!res.ok) throw new Error("Error");
+            fechasOcupadas = await res.json();
+        } catch (e) {
+            console.error("Error:", e);
+            fechasOcupadas = [];
+        }
     });
 
     fechaInput.addEventListener("input", function() {
         if (fechasOcupadas.includes(this.value)) {
-            alert("⚠️ Este salón ya está reservado en esa fecha");
+            errorMsg.innerText = "⚠️ Fecha ocupada para este salón";
             this.value = "";
+        } else {
+            errorMsg.innerText = "";
         }
     });
 
+    if (salonSelect.value) {
+        salonSelect.dispatchEvent(new Event("change"));
+    }
+
 });
+
+function filtrar() {
+    const q = document.getElementById('buscador').value.toLowerCase();
+    document.querySelectorAll('#listaRes .lista-item').forEach(li => {
+        li.style.display = li.dataset.q.includes(q) ? '' : 'none';
+    });
+}
 </script>
+
 {% endblock %}
