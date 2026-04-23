@@ -182,28 +182,34 @@ def registro():
             cursor.close(); db.close()
     return render_template("registro.html")
 
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if "rol" in session:
         return _redirigir_por_rol(session["rol"])
+
     if request.method == "POST":
         correo   = request.form["correo"].strip().lower()
         password = request.form["password"]
+
         db, cursor = get_cursor()
         cursor.execute("SELECT * FROM usuarios WHERE correo=%s", (correo,))
         user = cursor.fetchone()
-        cursor.close(); db.close()
+        cursor.close()
+        db.close()
+
         if user and check_password_hash(user["password"], password):
-            session["usuario"] = user["nombre"]
+            session["usuario"] = user["nombre"]   # 👈 ESTE ES EL QUE USAREMOS
             session["rol"]     = user["rol"]
             session["user_id"] = user["id"]
             session["correo"]  = user["correo"]
+
             flash(f"Bienvenido, {user['nombre']}.", "success")
             return _redirigir_por_rol(user["rol"])
-        flash("Correo o contraseña incorrectos.", "error")
-    return render_template("login.html")
 
+        flash("Correo o contraseña incorrectos.", "error")
+
+    return render_template("login.html")
+    
 def _redirigir_por_rol(rol):
     if rol == "admin": return redirect("/")
     if rol == "dueno": return redirect("/mis_salones")
@@ -300,19 +306,18 @@ def reservaciones():
     # CREAR RESERVACIÓN
     # =========================
     if request.method == "POST":
-        cliente_nombre = request.form.get("cliente")
         fecha = request.form.get("fecha")
         tipo = request.form.get("tipo")
         salon = request.form.get("salon")
 
-        # obtener cliente_id desde usuarios
         cliente_id = session.get("user_id")
+        cliente_nombre = session.get("usuario")  # 👈 CLAVE
 
-        if not cliente_nombre or not fecha or not salon:
+        if not fecha or not salon:
             flash("Faltan datos", "error")
             return redirect("/reservaciones")
 
-        # evitar duplicados
+        # validar duplicado
         cursor.execute("""
             SELECT id FROM reservaciones 
             WHERE fecha=%s AND salon_id=%s
@@ -353,7 +358,7 @@ def reservaciones():
             ORDER BY r.fecha DESC
         """, (session["user_id"],))
 
-    else:  # admin
+    else:
         cursor.execute("""
             SELECT r.*, s.nombre as salon_nombre
             FROM reservaciones r
@@ -363,10 +368,7 @@ def reservaciones():
 
     reservaciones = cursor.fetchall()
 
-    # =========================
-    # DATOS PARA FORMULARIO
-    # =========================
-    cursor.execute("SELECT * FROM clientes ORDER BY nombre")
+    cursor.execute("SELECT * FROM clientes")
     clientes = cursor.fetchall()
 
     cursor.execute("SELECT * FROM salon")
