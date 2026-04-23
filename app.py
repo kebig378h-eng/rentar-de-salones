@@ -297,6 +297,8 @@ def editar_cliente(cliente_id):
 
 
 # ── RESERVACIONES ─────────────────────────────────────────────────────────────
+from datetime import date
+
 @app.route("/reservaciones", methods=["GET", "POST"])
 @roles_permitidos("admin", "dueno", "cliente")
 def reservaciones():
@@ -311,7 +313,7 @@ def reservaciones():
         salon = request.form.get("salon")
 
         cliente_id = session.get("user_id")
-        cliente_nombre = session.get("usuario")  # 👈 CLAVE
+        cliente_nombre = session.get("usuario")
 
         if not fecha or not salon:
             flash("Faltan datos", "error")
@@ -331,7 +333,6 @@ def reservaciones():
                 (cliente, cliente_id, fecha, tipo, salon_id)
                 VALUES (%s, %s, %s, %s, %s)
             """, (cliente_nombre, cliente_id, fecha, tipo, salon))
-
             db.commit()
             flash("Reservación creada.", "success")
 
@@ -374,6 +375,8 @@ def reservaciones():
     cursor.execute("SELECT * FROM salon")
     salones = cursor.fetchall()
 
+    today = date.today().isoformat()
+
     cursor.close()
     db.close()
 
@@ -381,7 +384,8 @@ def reservaciones():
         "reservaciones.html",
         reservaciones=reservaciones,
         clientes=clientes,
-        salones=salones
+        salones=salones,
+        today=today
     )
 
 @app.route("/reservaciones/eliminar/<int:res_id>", methods=["POST"])
