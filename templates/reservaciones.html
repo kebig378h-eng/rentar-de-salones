@@ -40,9 +40,9 @@
             {% if reservaciones %}
             <ul id="listaRes">
                 {% for r in reservaciones %}
-                <li class="lista-item" data-q="{{ r.cliente | lower }} {{ r.tipo | lower }}">
+                <li class="lista-item" data-q="{{ (r.cliente_nombre or r.cliente) | lower }} {{ r.tipo | lower }}"
                     <div>
-                        <strong>{{ r.cliente }}</strong><br>
+                       <strong>{{ r.cliente_nombre or r.cliente }}</strong><br>
                         <small>📅 {{ r.fecha }} · 🎉 {{ r.tipo }}</small>
                     </div>
                     <form method="POST" action="/reservaciones/eliminar/{{ r.id }}" onsubmit="return confirm('¿Eliminar esta reservación?')">
