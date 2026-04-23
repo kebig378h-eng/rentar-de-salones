@@ -293,7 +293,7 @@ def editar_cliente(cliente_id):
 # ── RESERVACIONES ─────────────────────────────────────────────────────────────
 
 @app.route("/reservaciones", methods=["GET", "POST"])
-@roles_permitidos("admin", "dueno")
+@roles_permitidos("admin", "dueno", "cliente")
 def reservaciones():
     db, cursor = get_cursor()
 
