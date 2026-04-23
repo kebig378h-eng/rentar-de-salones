@@ -370,7 +370,7 @@ def reservaciones():
     )
 
 @app.route("/reservaciones/eliminar/<int:res_id>", methods=["POST"])
-@roles_permitidos("admin", "dueno")
+@roles_permitidos("admin", "dueno", "cliente")
 def eliminar_reservacion(res_id):
     db, cursor = get_cursor()
     cursor.execute("DELETE FROM reservaciones WHERE id=%s", (res_id,))
