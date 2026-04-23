@@ -33,16 +33,21 @@ TAMANO_MAXIMO_MB       = 5
 # Si no existen, usa las del .env local (DB_HOST, etc.)
 
 def get_db():
-    host     = os.getenv("MYSQLHOST")     or os.getenv("DB_HOST",     "localhost")
-    port     = int(os.getenv("MYSQLPORT") or os.getenv("DB_PORT",     3306))
-    user     = os.getenv("MYSQLUSER")     or os.getenv("DB_USER",     "root")
-    password = os.getenv("MYSQLPASSWORD") or os.getenv("DB_PASSWORD", "")
-    database = os.getenv("MYSQLDATABASE") or os.getenv("DB_NAME",     "eventos_db")
+    import os
+
+    host = os.getenv("MYSQLHOST", "gondola.proxy.rlwy.net")
+    port = int(os.getenv("MYSQLPORT", 33459))
+    user = os.getenv("MYSQLUSER", "root")
+    password = os.getenv("MYSQLPASSWORD", "jRyXYLhIrbBTUZGjGkwamxMocgeZOgst")
+    database = os.getenv("MYSQLDATABASE", "eventos_db")
+
     return mysql.connector.connect(
-        host=host, port=port,
-        user=user, password=password,
+        host=host,
+        port=port,
+        user=user,
+        password=password,
         database=database
-    )
+    ){}
 
 def get_cursor():
     db = get_db()
