@@ -8,15 +8,19 @@
         <div class="dash-panel-header"><h3 class="dash-panel-title">Nueva Reservación</h3></div>
         <div class="dash-panel-body">
             <form method="POST">
-                <label>Cliente</label>
-                <select name="cliente" required>
-                    <option value="">Selecciona un cliente</option>
-                    {% for c in clientes %}
-                    <option value="{{ c.nombre }}">{{ c.nombre }}</option>
-                    {% endfor %}
-                </select>
+                {% if session.rol == "admin" or session.rol == "dueno" %}
+    <label>Cliente</label>
+    <select name="cliente" required>
+        <option value="">Selecciona un cliente</option>
+        {% for c in clientes %}
+        <option value="{{ c.nombre }}">{{ c.nombre }}</option>
+        {% endfor %}
+    </select>
+{% else %}
+    <input type="hidden" name="cliente" value="{{ session.usuario }}">
+{% endif %}
                 <label>Salón</label>
-                <select name="salon" required>
+               <select name="salon" id="salon" required>
                     <option value="">Selecciona un salón</option>
                     {% for s in salones %}
                     <option value="{{ s.id }}" {% if salon_seleccionado == s.id|string %}selected{% endif %}>
@@ -25,7 +29,7 @@
                     {% endfor %}
                 </select>
                 <label>Fecha</label>
-                <input type="date" name="fecha" required>
+               <input type="date" name="fecha" id="fecha" required>
                 <label>Tipo de evento</label>
                 <input type="text" name="tipo" placeholder="Ej. Boda, Cumpleaños, Conferencia" required>
                 <button type="submit">Reservar</button>
@@ -39,18 +43,23 @@
             <input type="text" id="buscador" placeholder="🔍 Buscar..." oninput="filtrar()" style="margin-bottom:12px">
             {% if reservaciones %}
             <ul id="listaRes">
-                {% for r in reservaciones %}
-                <li class="lista-item" data-q="{{ (r.cliente_nombre or r.cliente) | lower }} {{ r.tipo | lower }}"
-                    <div>
-                       <strong>{{ r.cliente_nombre or r.cliente }}</strong><br>
-                        <small>📅 {{ r.fecha }} · 🎉 {{ r.tipo }}</small>
-                    </div>
-                    <form method="POST" action="/reservaciones/eliminar/{{ r.id }}" onsubmit="return confirm('¿Eliminar esta reservación?')">
-                        <button type="submit" class="btn-accion btn-eliminar">🗑️</button>
-                    </form>
-                </li>
-                {% endfor %}
-            </ul>
+    {% if session.rol == "cliente" %}
+    <p>Reservando como: <strong>{{ session.usuario }}</strong></p>
+    {% endif %}
+
+    {% for r in reservaciones %}
+    <li class="lista-item" data-q="{{ (r.cliente_nombre or r.cliente) | lower }} {{ r.tipo | lower }}">
+        <div>
+            <strong>{{ r.cliente_nombre or r.cliente }}</strong><br>
+            <small>📅 {{ r.fecha }} · 🎉 {{ r.tipo }}</small>
+        </div>
+
+        <form method="POST" action="/reservaciones/eliminar/{{ r.id }}" onsubmit="return confirm('¿Eliminar esta reservación?')">
+            <button type="submit" class="btn-accion btn-eliminar">🗑️</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
             {% else %}
             <p>No hay reservaciones aún.</p>
             {% endif %}
@@ -59,11 +68,35 @@
 </div>
 
 <script>
-function filtrar() {
-    const q = document.getElementById('buscador').value.toLowerCase();
-    document.querySelectorAll('#listaRes .lista-item').forEach(li => {
-        li.style.display = li.dataset.q.includes(q) ? '' : 'none';
+document.addEventListener("DOMContentLoaded", function() {
+
+    let fechasOcupadas = [];
+
+    const salonSelect = document.getElementById("salon");
+    const fechaInput = document.getElementById("fecha");
+
+    if (!salonSelect || !fechaInput) return;
+
+    // cargar fechas cuando cambia salón
+    salonSelect.addEventListener("change", async function() {
+        const salonId = this.value;
+
+        if (!salonId) return;
+
+        const res = await fetch(`/api/fechas_ocupadas/${salonId}`);
+        fechasOcupadas = await res.json();
     });
-}
+
+    // validar fecha
+    fechaInput.addEventListener("input", function() {
+        const fecha = this.value;
+
+        if (fechasOcupadas.includes(fecha)) {
+            alert("⚠️ Este salón ya está reservado en esa fecha");
+            this.value = "";
+        }
+    });
+
+});
 </script>
 {% endblock %}

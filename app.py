@@ -840,6 +840,23 @@ def api_estado():
         "reservaciones":r["reservaciones"]
     })
 
+# Endpoint adicional para obtener fechas ocupadas de un salón específico
+@app.route("/api/fechas_ocupadas/<int:salon_id>")
+def fechas_ocupadas(salon_id):
+    db, cursor = get_cursor()
+
+    cursor.execute("""
+        SELECT fecha FROM reservaciones
+        WHERE salon_id = %s
+    """, (salon_id,))
+
+    fechas = [str(r["fecha"]) for r in cursor.fetchall()]
+
+    cursor.close()
+    db.close()
+
+    return jsonify(fechas)
+
 
 @app.route("/api/docs")
 @login_required
