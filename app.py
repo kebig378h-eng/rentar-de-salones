@@ -296,42 +296,90 @@ def editar_cliente(cliente_id):
 @roles_permitidos("admin", "dueno")
 def reservaciones():
     db, cursor = get_cursor()
+
     if request.method == "POST":
-        cursor.execute("SELECT id FROM reservaciones WHERE fecha=%s AND salon_id=%s",
-                       (request.form["fecha"], request.form["salon"]))
+        cliente_nombre = request.form["cliente"]
+        fecha = request.form["fecha"]
+        tipo = request.form["tipo"]
+        salon = request.form.get("salon")
+
+        # 🔥 Buscar cliente_id
+        cursor.execute("SELECT id FROM clientes WHERE nombre=%s LIMIT 1", (cliente_nombre,))
+        c = cursor.fetchone()
+        cliente_id = c["id"] if c else None
+
+        # 🔥 Validar duplicado
+        cursor.execute(
+            "SELECT id FROM reservaciones WHERE fecha=%s AND salon_id=%s",
+            (fecha, salon)
+        )
         if cursor.fetchone():
             flash("Ese salón ya está reservado en esa fecha.", "error")
         else:
-            cursor.execute("INSERT INTO reservaciones (cliente, fecha, tipo, salon_id) VALUES (%s,%s,%s,%s)",
-                           (request.form["cliente"], request.form["fecha"],
-                            request.form["tipo"],    request.form["salon"]))
+            cursor.execute("""
+                INSERT INTO reservaciones (cliente, cliente_id, fecha, tipo, salon_id)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (cliente_nombre, cliente_id, fecha, tipo, salon))
             db.commit()
             flash("Reservación creada.", "success")
-            cursor.execute("SELECT correo FROM clientes WHERE nombre=%s LIMIT 1", (request.form["cliente"],))
-            c = cursor.fetchone()
-            if c and c["correo"]:
-                cursor.execute("SELECT nombre FROM salon WHERE id=%s", (request.form["salon"],))
-                s = cursor.fetchone()
-                enviar_correo_reservacion(c["correo"], request.form["cliente"],
-                                          s["nombre"] if s else "Salón",
-                                          request.form["fecha"], request.form["tipo"])
+
         return redirect("/reservaciones")
 
+    # 🔥 GET (IMPORTANTE: soporta ?salon=1)
+    salon_filtro = request.args.get("salon")
+
     if session["rol"] == "dueno":
-        cursor.execute("SELECT r.* FROM reservaciones r JOIN salon s ON r.salon_id=s.id WHERE s.dueno_id=%s ORDER BY r.fecha DESC", (session["user_id"],))
+        query = """
+            SELECT r.*, c.nombre as cliente_nombre, s.nombre as salon_nombre
+            FROM reservaciones r
+            LEFT JOIN clientes c ON r.cliente_id = c.id
+            JOIN salon s ON r.salon_id = s.id
+            WHERE s.dueno_id=%s
+        """
+        params = [session["user_id"]]
+
+        if salon_filtro:
+            query += " AND r.salon_id=%s"
+            params.append(salon_filtro)
+
+        query += " ORDER BY r.fecha DESC"
+        cursor.execute(query, tuple(params))
+
     else:
-        cursor.execute("SELECT * FROM reservaciones ORDER BY fecha DESC")
+        query = """
+            SELECT r.*, c.nombre as cliente_nombre, s.nombre as salon_nombre
+            FROM reservaciones r
+            LEFT JOIN clientes c ON r.cliente_id = c.id
+            JOIN salon s ON r.salon_id = s.id
+        """
+
+        if salon_filtro:
+            query += " WHERE r.salon_id=%s"
+            cursor.execute(query + " ORDER BY r.fecha DESC", (salon_filtro,))
+        else:
+            cursor.execute(query + " ORDER BY r.fecha DESC")
+
     reservaciones = cursor.fetchall()
+
     cursor.execute("SELECT * FROM clientes ORDER BY nombre")
     clientes = cursor.fetchall()
+
     if session["rol"] == "dueno":
         cursor.execute("SELECT * FROM salon WHERE dueno_id=%s", (session["user_id"],))
     else:
         cursor.execute("SELECT * FROM salon")
+
     salones = cursor.fetchall()
-    cursor.close(); db.close()
-    return render_template("reservaciones.html",
-        reservaciones=reservaciones, clientes=clientes, salones=salones)
+
+    cursor.close()
+    db.close()
+
+    return render_template(
+        "reservaciones.html",
+        reservaciones=reservaciones,
+        clientes=clientes,
+        salones=salones
+    )
 
 @app.route("/reservaciones/eliminar/<int:res_id>", methods=["POST"])
 @roles_permitidos("admin", "dueno")
