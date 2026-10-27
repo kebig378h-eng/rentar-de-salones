@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block contenido %}
+<a href="/mensajes" style="font-size:13px;color:var(--color-texto-sec);text-decoration:none">← Mensajes</a>
+<h2>💬 {{ titulo }}</h2>
+{% if salon %}
+<p style="color:var(--color-texto-sec);margin-top:-8px">
+    Sobre el salón <a href="/salon/{{ salon.id }}">{{ salon.nombre }}</a>
+</p>
+{% endif %}
+
+<div class="dash-panel" style="margin-top:16px">
+    <div class="dash-panel-body">
+        <div class="chat-box" id="chatBox">
+            {% if mensajes %}
+                {% for m in mensajes %}
+                <div class="mensaje {% if m.emisor_id == user_id %}yo{% else %}otro{% endif %}">
+                    <strong>{{ m.emisor_nombre }}</strong><br>
+                    {{ m.mensaje }}
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="text-align:center;color:#aaa;padding:20px">
+                    Sin mensajes aún. ¡Escribe el primero!
+                </p>
+            {% endif %}
+        </div>
+
+        {% if conversacion.tipo == 'soporte' and conversacion.estado == 'cerrada' %}
+        <p style="text-align:center;color:var(--color-texto-sec);margin-top:12px">
+            Esta conversación de soporte está cerrada.
+        </p>
+        {% else %}
+        <div style="display:flex;gap:8px;margin-top:12px">
+            <input type="text" id="inputMensaje" placeholder="Escribe un mensaje..."
+                   style="flex:1" onkeydown="if(event.key==='Enter') enviar()">
+            <button onclick="enviar()" style="width:auto;padding:10px 20px">Enviar</button>
+        </div>
+        {% endif %}
+
+        {% if session.rol == 'admin' and conversacion.tipo == 'soporte' and conversacion.estado == 'abierta' %}
+        <form method="POST" action="/mensajes/{{ conversacion.id }}/cerrar" style="margin-top:16px">
+            <button type="submit" class="btn-secondary">Marcar como resuelta</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/socket.io/client-dist/socket.io.min.js"></script>
+<script>
+const socket         = io();
+const chatBox        = document.getElementById('chatBox');
+const userId         = {{ user_id }};
+const conversacionId = {{ conversacion.id }};
+
+socket.emit('unirse_conversacion', { conversacion_id: conversacionId });
+
+function scrollAbajo() { chatBox.scrollTop = chatBox.scrollHeight; }
+scrollAbajo();
+
+function enviar() {
+    const input   = document.getElementById('inputMensaje');
+    if (!input) return;
+    const mensaje = input.value.trim();
+    if (!mensaje) return;
+    socket.emit('enviar_mensaje', { mensaje: mensaje, conversacion_id: conversacionId });
+    input.value = '';
+}
+
+socket.on('recibir_mensaje', data => {
+    const div = document.createElement('div');
+    div.className = 'mensaje ' + (data.user_id === userId ? 'yo' : 'otro');
+
+    const nombre = document.createElement('strong');
+    nombre.textContent = data.usuario;
+    div.appendChild(nombre);
+    div.appendChild(document.createElement('br'));
+    div.appendChild(document.createTextNode(data.mensaje));
+
+    chatBox.appendChild(div);
+    scrollAbajo();
+});
+</script>
+{% endblock %}

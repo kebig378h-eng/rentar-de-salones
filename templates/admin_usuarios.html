@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block titulo %}Usuarios{% endblock %}
+{% block contenido %}
+<h2>👥 Usuarios</h2>
+
+<div class="dash-panel" style="margin-bottom:20px">
+    <div class="dash-panel-header"><h3 class="dash-panel-title">🏢 Dueños ({{ duenos|length }})</h3></div>
+    <div class="dash-panel-body">
+        {% if duenos %}
+        <ul>
+            {% for u in duenos %}
+            <li class="lista-item" style="align-items:flex-start;flex-wrap:wrap">
+                <div>
+                    <strong>{{ u.nombre }}</strong><br>
+                    <small style="color:var(--color-texto-sec)">
+                        {{ u.correo }} · {{ u.total_salones }} salón(es)
+                        {% if u.suscripcion_estado == 'trial' %}
+                        · 🕓 prueba{% if u.trial_termina %} (termina {{ u.trial_termina }}){% endif %}
+                        {% elif u.suscripcion_estado == 'vencida' %}
+                        · ⚠️ vencida
+                        {% else %}
+                        · ✅ activa
+                        {% endif %}
+                    </small>
+                </div>
+                <form method="POST" action="/admin/usuarios/{{ u.id }}/plan" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                    <select name="plan_id">
+                        {% for p in planes %}
+                        <option value="{{ p.id }}" {% if u.plan_slug == p.slug %}selected{% endif %}>{{ p.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    <select name="suscripcion_estado">
+                        <option value="trial"  {% if u.suscripcion_estado == 'trial' %}selected{% endif %}>Prueba</option>
+                        <option value="activa" {% if u.suscripcion_estado == 'activa' %}selected{% endif %}>Activa</option>
+                        <option value="vencida"{% if u.suscripcion_estado == 'vencida' %}selected{% endif %}>Vencida</option>
+                    </select>
+                    <button type="submit" class="btn-accion btn-editar">Guardar</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No hay dueños registrados aún.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="dash-panel" style="margin-bottom:20px">
+    <div class="dash-panel-header"><h3 class="dash-panel-title">👤 Clientes ({{ clientes|length }})</h3></div>
+    <div class="dash-panel-body">
+        {% if clientes %}
+        <ul>
+            {% for u in clientes %}
+            <li class="lista-item">
+                <div><strong>{{ u.nombre }}</strong><br><small style="color:var(--color-texto-sec)">{{ u.correo }}</small></div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No hay clientes registrados aún.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="dash-panel">
+    <div class="dash-panel-header"><h3 class="dash-panel-title">🛠️ Administradores ({{ admins|length }})</h3></div>
+    <div class="dash-panel-body">
+        <ul>
+            {% for u in admins %}
+            <li class="lista-item">
+                <div><strong>{{ u.nombre }}</strong><br><small style="color:var(--color-texto-sec)">{{ u.correo }}</small></div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

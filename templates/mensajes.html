@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block titulo %}Mensajes{% endblock %}
+{% block contenido %}
+<h2>💬 Mensajes</h2>
+
+{% if session.rol != 'admin' %}
+<form method="POST" action="/mensajes/soporte" style="margin-bottom:20px">
+    <button type="submit" class="btn-secondary">🆘 Contactar soporte</button>
+</form>
+{% endif %}
+
+<div class="dash-panel">
+    <div class="dash-panel-header">
+        <h3 class="dash-panel-title">
+            {% if session.rol == 'admin' %}Solicitudes de soporte{% else %}Tus conversaciones{% endif %}
+        </h3>
+    </div>
+    <div class="dash-panel-body">
+        {% if conversaciones %}
+        <ul>
+            {% for c in conversaciones %}
+            <li>
+                <a href="/mensajes/{{ c.id }}" class="lista-item" style="text-decoration:none;color:inherit">
+                    <div style="display:flex;align-items:center;gap:12px;min-width:0">
+                        {% if c.no_leido %}
+                        <span title="Sin leer" style="width:9px;height:9px;border-radius:50%;background:var(--color-primario);flex-shrink:0"></span>
+                        {% endif %}
+                        <div class="user-avatar">{{ (c.otro_nombre or '?')[0]|upper }}</div>
+                        <div style="min-width:0">
+                            <strong>
+                                {{ c.otro_nombre }}
+                                {% if c.tipo == 'soporte' %}<span style="font-size:11px;font-weight:400;color:var(--color-texto-sec)">· soporte</span>{% endif %}
+                                {% if c.salon_nombre %}<span style="font-size:11px;font-weight:400;color:var(--color-texto-sec)">· {{ c.salon_nombre }}</span>{% endif %}
+                            </strong><br>
+                            <small style="{% if c.no_leido %}font-weight:700;color:var(--color-texto);{% else %}color:var(--color-texto-sec);{% endif %}white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;max-width:320px">
+                                {{ c.ultimo_mensaje or 'Sin mensajes aún — abre para escribir.' }}
+                            </small>
+                        </div>
+                    </div>
+                    <div style="text-align:right;flex-shrink:0">
+                        {% if c.tipo == 'soporte' and c.estado == 'cerrada' %}
+                        <div style="font-size:11px;color:var(--color-texto-sec)">Cerrada</div>
+                        {% endif %}
+                        <small style="color:var(--color-texto-sec)">{{ c.ultima_fecha or '' }}</small>
+                    </div>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>
+            {% if session.rol == 'admin' %}
+            No hay solicitudes de soporte por ahora.
+            {% else %}
+            No tienes conversaciones todavía. Escríbele a un dueño desde la página de su salón, o contacta a soporte si tienes una duda.
+            {% endif %}
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

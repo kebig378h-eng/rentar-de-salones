@@ -56,8 +56,13 @@
         {% endif %}
 
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px">
+            {% if session.get('rol') in ('admin', 'dueno') %}
             <a href="/reservaciones?salon={{ salon.id }}" class="btn-primary">📅 Reservar Ahora</a>
-            <a href="/chat/{{ salon.id }}" class="btn-secondary">💬 Enviar Mensaje</a>
+            {% elif session.get('rol') == 'cliente' %}
+            <form method="POST" action="/salon/{{ salon.id }}/contactar">
+                <button type="submit" class="btn-primary">📅 Contactar al dueño para reservar</button>
+            </form>
+            {% endif %}
         </div>
 
         <div id="mapa-detalle" style="height:240px;border-radius:10px;margin-bottom:24px"></div>

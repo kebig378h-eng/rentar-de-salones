@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block titulo %}Mi Plan{% endblock %}
+{% block contenido %}
+<h2>💳 Mi Plan</h2>
+
+<div class="dash-panel" style="margin:20px 0;max-width:480px">
+    <div class="dash-panel-header"><h3 class="dash-panel-title">Suscripción actual</h3></div>
+    <div class="dash-panel-body">
+        {% if plan %}
+        <p style="font-size:20px;font-weight:700;color:var(--color-texto);margin:0 0 4px">{{ plan.nombre }}</p>
+        <p style="color:var(--color-texto-sec);margin:0 0 16px">
+            {% if plan.precio|float == 0 %}Gratis (1er mes){% else %}${{ '%.0f'|format(plan.precio|float) }} cada {{ plan.periodo_meses }} meses{% endif %}
+            ·
+            {% if plan.suscripcion_estado == 'trial' %}
+                🕓 Prueba gratuita{% if plan.trial_termina %} — termina el {{ plan.trial_termina }}{% endif %}
+            {% elif plan.suscripcion_estado == 'activa' %}
+                ✅ Activa
+            {% else %}
+                ⚠️ Vencida — <a href="/precios">renueva aquí</a>
+            {% endif %}
+        </p>
+
+        <p style="font-size:13px;color:var(--color-texto-sec);margin-bottom:4px">
+            Salones usados: {{ salones_usados }}{% if plan.max_salones is not none %} / {{ plan.max_salones }}{% else %} (ilimitado){% endif %}
+        </p>
+        {% if plan.max_salones is not none %}
+        <div class="plan-uso">
+            <div class="plan-uso-barra" style="width:{{ [(salones_usados / plan.max_salones * 100)|round, 100]|min }}%"></div>
+        </div>
+        {% endif %}
+        {% else %}
+        <p>No tienes un plan asignado todavía.</p>
+        {% endif %}
+
+        <a href="/precios" class="btn-accion btn-editar" style="display:inline-block;margin-top:20px">
+            Ver / cambiar de plan
+        </a>
+    </div>
+</div>
+{% endblock %}

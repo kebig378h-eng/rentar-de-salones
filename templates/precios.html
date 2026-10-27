@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block titulo %}Precios{% endblock %}
+{% block contenido %}
+<h2>💳 Precios simples</h2>
+<p style="color:var(--color-texto-sec);max-width:560px">
+    Tu primer mes es gratis para que pruebes la plataforma sin compromiso.
+    Después, un solo pago de <strong>$250 cada 6 meses</strong> — sin niveles
+    confusos, sin sorpresas.
+</p>
+
+<div class="pricing-grid">
+    {% for p in planes %}
+    <div class="plan-card {% if p.slug == 'pro' %}destacado{% endif %}">
+        {% if p.slug == 'pro' %}<span class="plan-etiqueta">El plan de EventoSuite</span>{% endif %}
+        <h3>{{ p.nombre }}</h3>
+        <div class="precio">
+            {% if p.precio|float == 0 %}
+                Gratis
+                <span>1er mes</span>
+            {% else %}
+                ${{ '%.0f'|format(p.precio|float) }}
+                <span>{{ 'cada ' ~ p.periodo_meses ~ ' meses' if p.periodo_meses != 1 else '/mes' }}</span>
+            {% endif %}
+        </div>
+        <ul>
+            <li>{{ 'Salones ilimitados' if p.max_salones is none else (p.max_salones|string ~ ' salón(es)') }}</li>
+            <li>Reservaciones ilimitadas</li>
+            <li>Contratos en PDF</li>
+            <li>Chat con tus clientes</li>
+            <li>Mapa y calendario</li>
+        </ul>
+        {% if session.get('rol') == 'dueno' %}
+            {% if plan and plan.slug == p.slug and plan.suscripcion_estado != 'vencida' %}
+            <button disabled style="opacity:.6">Tu plan actual</button>
+            {% elif p.slug == 'gratis' %}
+            <button disabled style="opacity:.6">Solo al crear tu cuenta</button>
+            {% else %}
+            <form method="POST" action="/suscripcion/checkout/{{ p.slug }}">
+                <button type="submit" class="btn-accion btn-editar" style="width:100%">
+                    {{ 'Renovar' if plan and plan.slug == p.slug else 'Suscribirme a' }} {{ p.nombre }}
+                </button>
+            </form>
+            {% endif %}
+        {% elif session.get('rol') %}
+        <a href="/mi_plan" class="btn-accion btn-editar" style="display:block;text-align:center">Ver mi plan</a>
+        {% else %}
+        <a href="/registro" class="btn-accion btn-editar" style="display:block;text-align:center">Empezar gratis</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block titulo %}Términos de Uso{% endblock %}
+{% block contenido %}
+<div class="dash-panel" style="max-width:720px;margin:20px auto">
+    <div class="dash-panel-body">
+        <div class="flash flash-error" style="margin-bottom:20px">
+            ⚠️ <strong>Borrador.</strong> Este texto es un punto de partida genérico,
+            no es asesoría legal. Revísalo con un abogado antes de publicarlo o
+            de operar cobros reales con estos términos.
+        </div>
+
+        <h2>Términos de Uso</h2>
+        <p style="color:var(--color-texto-sec)">Última actualización: {{ anio_actual }}</p>
+
+        <h3>1. Descripción del servicio</h3>
+        <p>EventoSuite es una plataforma que permite a dueños de salones de
+        eventos administrar reservaciones, pagos, contratos y comunicación
+        con sus clientes, mediante un plan de suscripción mensual.</p>
+
+        <h3>2. Cuentas</h3>
+        <p>Eres responsable de la confidencialidad de tu contraseña y de la
+        veracidad de la información que registres sobre tus salones,
+        clientes y pagos.</p>
+
+        <h3>3. Planes y cobros</h3>
+        <p>Los planes de pago se cobran mensualmente a través de Stripe. Los
+        precios vigentes se muestran en la página de <a href="/precios">precios</a>.
+        [Definir aquí política de cancelación, reembolsos y qué pasa con los
+        datos si se cancela una suscripción.]</p>
+
+        <h3>4. Contenido del usuario</h3>
+        <p>Eres responsable de la información que subas (fotos de salones,
+        datos de clientes, condiciones de contrato). No debes subir
+        contenido que infrinja derechos de terceros.</p>
+
+        <h3>5. Contratos generados por la plataforma</h3>
+        <p>Los contratos en PDF generados por EventoSuite son una plantilla
+        de referencia; [aclarar aquí si EventoSuite se hace responsable o no
+        de su validez legal en la jurisdicción donde opere cada dueño].</p>
+
+        <h3>6. Límite de responsabilidad</h3>
+        <p>[Definir aquí el límite de responsabilidad de la plataforma ante
+        fallas del servicio, pérdida de datos, etc.]</p>
+
+        <h3>7. Contacto</h3>
+        <p>[Agregar correo/medio de contacto real antes de publicar.]</p>
+    </div>
+</div>
+{% endblock %}

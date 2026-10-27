@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block titulo %}Aviso de Privacidad{% endblock %}
+{% block contenido %}
+<div class="dash-panel" style="max-width:720px;margin:20px auto">
+    <div class="dash-panel-body">
+        <div class="flash flash-error" style="margin-bottom:20px">
+            ⚠️ <strong>Borrador.</strong> Este texto es un punto de partida genérico,
+            no es asesoría legal. Revísalo con un abogado (y con las leyes de
+            protección de datos de tu país, ej. LFPDPPP en México) antes de
+            publicarlo.
+        </div>
+
+        <h2>Aviso de Privacidad</h2>
+        <p style="color:var(--color-texto-sec)">Última actualización: {{ anio_actual }}</p>
+
+        <h3>1. Datos que recopilamos</h3>
+        <p>Al usar EventoSuite recopilamos: datos de la cuenta (nombre,
+        correo, contraseña cifrada), datos de tus salones (ubicación,
+        precio, fotos), datos de tus clientes que tú registras (nombre,
+        teléfono, correo), y mensajes enviados por el chat.</p>
+
+        <h3>2. Uso de los datos</h3>
+        <p>Los datos se usan para operar el servicio: mostrar tus salones,
+        gestionar reservaciones y pagos, generar contratos y enviar
+        confirmaciones por correo. No vendemos tus datos a terceros.</p>
+
+        <h3>3. Pagos</h3>
+        <p>El procesamiento de pagos de suscripción lo realiza Stripe;
+        EventoSuite no almacena números de tarjeta.</p>
+
+        <h3>4. Datos de tus clientes</h3>
+        <p>Como dueño de salón, eres responsable de contar con el
+        consentimiento de tus clientes para registrar sus datos de contacto
+        en la plataforma. [Definir aquí el rol de "encargado" vs
+        "responsable" de los datos según la legislación aplicable.]</p>
+
+        <h3>5. Derechos ARCO / eliminación de cuenta</h3>
+        <p>[Definir aquí el proceso para que un usuario solicite acceso,
+        rectificación, cancelación u oposición sobre sus datos, y el plazo
+        de respuesta.]</p>
+
+        <h3>6. Contacto</h3>
+        <p>[Agregar correo/medio de contacto real antes de publicar.]</p>
+    </div>
+</div>
+{% endblock %}

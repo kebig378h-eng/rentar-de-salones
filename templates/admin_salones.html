@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block titulo %}Salones{% endblock %}
+{% block contenido %}
+<h2>🏢 Todos los Salones</h2>
+<p style="color:var(--color-texto-sec)">Vista de moderación — solo para eliminar publicaciones problemáticas. Editar un salón sigue siendo tarea de su dueño.</p>
+
+<div class="dash-panel">
+    <div class="dash-panel-body">
+        {% if salones %}
+        <ul>
+            {% for s in salones %}
+            <li class="lista-item">
+                <div>
+                    <strong>{{ s.nombre }}</strong><br>
+                    <small style="color:var(--color-texto-sec)">
+                        Dueño: {{ s.dueno_nombre or 'sin dueño' }} · ${{ s.precio }}
+                    </small>
+                </div>
+                <div class="item-acciones">
+                    <a href="/salon/{{ s.id }}" class="btn-accion btn-editar">👁️ Ver</a>
+                    <form method="POST" action="/admin/salones/eliminar/{{ s.id }}" onsubmit="return confirm('¿Eliminar {{ s.nombre }}? Esto borra también sus reservaciones, pagos y contratos.')">
+                        <button type="submit" class="btn-accion btn-eliminar">🗑️ Eliminar</button>
+                    </form>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>No hay salones registrados aún.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block titulo %}Nueva Contraseña{% endblock %}
+{% block contenido %}
+<div class="auth-card">
+    <div class="auth-header">
+        <span style="font-size:36px">🔑</span>
+        <h2>Elige tu nueva contraseña</h2>
+    </div>
+    <form method="POST">
+        <label>Contraseña nueva</label>
+        <input type="password" name="password" placeholder="Mínimo 6 caracteres" required minlength="6" autofocus>
+        <button type="submit">Guardar contraseña</button>
+    </form>
+    <p class="auth-footer"><a href="/login">← Volver a iniciar sesión</a></p>
+</div>
+{% endblock %}

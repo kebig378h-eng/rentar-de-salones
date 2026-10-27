@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block titulo %}Recuperar Contraseña{% endblock %}
+{% block contenido %}
+<div class="auth-card">
+    <div class="auth-header">
+        <span style="font-size:36px">🔑</span>
+        <h2>Recuperar contraseña</h2>
+        <p>Te mandamos un enlace para restablecerla</p>
+    </div>
+    <form method="POST">
+        <label>Correo electrónico</label>
+        <input type="email" name="correo" placeholder="correo@ejemplo.com" required autofocus>
+        <button type="submit">Enviar instrucciones</button>
+    </form>
+    <p class="auth-footer"><a href="/login">← Volver a iniciar sesión</a></p>
+</div>
+{% endblock %}

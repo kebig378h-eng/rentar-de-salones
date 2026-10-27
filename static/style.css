@@ -588,6 +588,114 @@ ul { list-style: none; padding: 0; margin: 0; }
     .filtros-panel { flex-direction: column; }
 }
 
+/* ============================================================
+   LANDING
+   ============================================================ */
+.hero {
+    text-align: center;
+    padding: 64px 16px 48px;
+    max-width: 720px;
+    margin: 0 auto;
+}
+.hero-badge {
+    display: inline-block;
+    background: var(--color-foco);
+    color: var(--color-primario-hover);
+    font-size: 12px; font-weight: 700; letter-spacing: .04em;
+    padding: 6px 14px; border-radius: 999px; margin-bottom: 18px;
+    text-transform: uppercase;
+}
+.hero h1 {
+    font-size: clamp(28px, 5vw, 44px);
+    line-height: 1.15; margin: 0 0 16px; color: var(--color-texto);
+}
+.hero h1 span { color: var(--color-primario); }
+.hero p.subtitulo {
+    font-size: 17px; color: var(--color-texto-sec);
+    max-width: 560px; margin: 0 auto 28px;
+}
+.hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.hero-ctas a { padding: 13px 28px; font-size: 15px; }
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 18px; margin: 40px 0;
+}
+.feature-card {
+    background: var(--color-superficie);
+    border-radius: var(--radio-card);
+    box-shadow: var(--sombra-card);
+    padding: 22px 20px;
+}
+.feature-card .emoji { font-size: 26px; margin-bottom: 10px; display: block; }
+.feature-card h4 { margin: 0 0 6px; font-size: 15px; color: var(--color-texto); }
+.feature-card p  { margin: 0; font-size: 13px; color: var(--color-texto-sec); line-height: 1.5; }
+
+.pasos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px; margin: 24px 0 48px; text-align: center;
+}
+.paso .paso-num {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--color-primario); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; margin: 0 auto 10px;
+}
+.paso h4 { margin: 0 0 4px; font-size: 14px; color: var(--color-texto); }
+.paso p  { margin: 0; font-size: 13px; color: var(--color-texto-sec); }
+
+.cta-final {
+    text-align: center;
+    background: linear-gradient(135deg, var(--color-primario), var(--color-primario-hover));
+    border-radius: var(--radio-card);
+    padding: 40px 24px; margin: 40px 0; color: white;
+}
+.cta-final h3 { margin: 0 0 10px; font-size: 22px; }
+.cta-final p  { margin: 0 0 20px; opacity: .9; }
+.cta-final a  { background: white; color: var(--color-primario-hover); padding: 13px 28px; }
+
+/* ============================================================
+   PLANES / PRECIOS
+   ============================================================ */
+.pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px; margin: 24px 0;
+}
+.plan-card {
+    background: var(--color-superficie);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--radio-card);
+    box-shadow: var(--sombra-card);
+    padding: 28px 24px;
+    text-align: center;
+    transition: var(--transicion);
+}
+.plan-card:hover        { transform: translateY(-4px); }
+.plan-card.destacado    { border: 2px solid var(--color-primario); position: relative; }
+.plan-card .plan-etiqueta {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--color-primario); color: white;
+    font-size: 11px; font-weight: 700; letter-spacing: .04em;
+    padding: 4px 12px; border-radius: 999px; text-transform: uppercase;
+}
+.plan-card h3      { margin: 4px 0 0; font-size: 18px; color: var(--color-texto); }
+.plan-card .precio { margin: 12px 0; font-size: 34px; font-weight: 700; color: var(--color-primario); }
+.plan-card .precio span { font-size: 14px; font-weight: 500; color: var(--color-texto-sec); }
+.plan-card ul {
+    list-style: none; padding: 0; margin: 18px 0 22px;
+    text-align: left; color: var(--color-texto-sec); font-size: 14px;
+}
+.plan-card ul li { padding: 6px 0; border-bottom: 1px solid var(--color-borde); }
+.plan-card ul li:last-child { border-bottom: none; }
+.plan-uso {
+    background: var(--color-lista); border-radius: var(--radio);
+    padding: 4px 0; margin-top: 6px; overflow: hidden;
+}
+.plan-uso-barra { height: 8px; background: var(--color-primario); border-radius: var(--radio); }
+
 @media (max-width: 480px) {
     .dash-stats { grid-template-columns: 1fr; }
     .navbar     { padding: 0 16px; }

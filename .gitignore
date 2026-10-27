@@ -1,5 +1,6 @@
 # Variables de entorno — nunca subir al repositorio
 .env
+admin.txt
 
 # Archivos de Python
 __pycache__/
@@ -12,3 +13,6 @@ static/uploads/
 # Entornos virtuales
 venv/
 env/
+# Repos/archivos locales que no van al proyecto
+renta/
+torre.txt

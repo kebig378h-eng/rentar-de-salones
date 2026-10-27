@@ -35,15 +35,67 @@
 <p>No hay salones registrados aún.</p>
 {% endif %}
 
+<div class="dash-panel" style="margin-bottom:16px">
+    <div class="dash-panel-header"><h3 class="dash-panel-title">📍 Salones más cercanos a ti</h3></div>
+    <div class="dash-panel-body" id="cercanosBody">
+        <p id="cercanosEstado" style="color:var(--color-texto-sec)">
+            Activa tu ubicación para ver qué salones tienes más cerca.
+            <button type="button" onclick="pedirUbicacion()" class="btn-accion btn-editar" style="margin-left:8px">📍 Usar mi ubicación</button>
+        </p>
+        <ul id="listaCercanos" style="display:none"></ul>
+    </div>
+</div>
+
 <div id="map"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-const salones = {{ salones | default([]) | tojson }};
+const salones   = {{ salones | default([]) | tojson }};
+const esCliente = {{ 'true' if session.get('rol') == 'cliente' else 'false' }};
 const map = L.map('map').setView([20.5888, -100.3899], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'© OpenStreetMap' }).addTo(map);
 
 const marcadores = [];
+let ubicacion = null; // {lat, lng} una vez que el usuario comparte su ubicación
+
+function distanciaKm(lat1, lng1, lat2, lng2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2 +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function botonContactar(salon) {
+    if (!esCliente) return `<a href="/salon/${salon.id}" class="btn-chat">🔎 Ver salón</a>`;
+    return `
+        <form method="POST" action="/salon/${salon.id}/contactar" style="flex:1;margin:0">
+            <button type="submit" class="btn-chat" style="width:100%;border:none;cursor:pointer">
+                💬 Contactar a ${salon.dueno_nombre || 'el dueño'}
+            </button>
+        </form>`;
+}
+
+function popupHTML(salon, dist) {
+    const imgHTML = salon.imagen
+        ? `<img src="/static/uploads/${salon.imagen}" alt="${salon.nombre}">`
+        : '';
+    return `
+        <div class="popup-salon" style="min-width:190px">
+            ${imgHTML}
+            <h4>${salon.nombre}</h4>
+            <p>👤 ${salon.dueno_nombre || 'Dueño no disponible'}</p>
+            <p>💰 $${Number(salon.precio).toLocaleString()} por evento</p>
+            ${salon.capacidad ? `<p>👥 ${salon.capacidad} personas</p>` : ''}
+            ${dist !== null ? `<p>📍 ${dist.toFixed(1)} km de ti</p>` : ''}
+            <div class="popup-btns">
+                <a href="/reservaciones?salon=${salon.id}" class="btn-reservar">Reservar</a>
+                ${botonContactar(salon)}
+            </div>
+        </div>
+    `;
+}
 
 salones.forEach(salon => {
     if (!salon.latitud || !salon.longitud) return;
@@ -58,29 +110,59 @@ salones.forEach(salon => {
     });
 
     const marker = L.marker([lat, lng], { icon: precioIcon }).addTo(map);
+    marker.bindPopup(popupHTML(salon, null));
 
-    const imgHTML = salon.imagen
-        ? `<img src="/static/uploads/${salon.imagen}" alt="${salon.nombre}">`
-        : '';
-
-    marker.bindPopup(`
-        <div class="popup-salon" style="min-width:180px">
-            ${imgHTML}
-            <h4>${salon.nombre}</h4>
-            <p>💰 $${Number(salon.precio).toLocaleString()} por evento</p>
-            ${salon.capacidad ? `<p>👥 ${salon.capacidad} personas</p>` : ''}
-            <div class="popup-btns">
-                <a href="/reservaciones?salon=${salon.id}" class="btn-reservar">Reservar</a>
-                <a href="/chat/${salon.id}" class="btn-chat">💬 Chat</a>
-            </div>
-        </div>
-    `);
-
-    marcadores.push({ marker, salon });
+    marcadores.push({ marker, salon, lat, lng });
 });
 
 if (marcadores.length > 0) {
     map.fitBounds(marcadores.map(m => m.marker.getLatLng()));
+}
+
+function pedirUbicacion() {
+    const estado = document.getElementById('cercanosEstado');
+    if (!navigator.geolocation) {
+        estado.textContent = 'Tu navegador no soporta geolocalización.';
+        return;
+    }
+    estado.textContent = '📍 Buscando tu ubicación...';
+    navigator.geolocation.getCurrentPosition(
+        pos => {
+            ubicacion = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            L.marker([ubicacion.lat, ubicacion.lng], {
+                icon: L.divIcon({ className: '', html: '<div style="background:#3498db;width:14px;height:14px;border-radius:50%;border:3px solid white;box-shadow:0 0 0 2px #3498db"></div>', iconAnchor: [10, 10] })
+            }).addTo(map).bindPopup('Tú estás aquí');
+            marcadores.forEach(m => m.marker.setPopupContent(popupHTML(m.salon, distanciaKm(ubicacion.lat, ubicacion.lng, m.lat, m.lng))));
+            renderizarCercanos();
+        },
+        err => {
+            estado.textContent = 'No pudimos obtener tu ubicación (' +
+                (err.code === 1 ? 'permiso denegado' : 'inténtalo de nuevo') + ').';
+        }
+    );
+}
+
+function renderizarCercanos() {
+    const estado = document.getElementById('cercanosEstado');
+    const lista  = document.getElementById('listaCercanos');
+    if (!ubicacion || marcadores.length === 0) return;
+
+    const ordenados = marcadores
+        .map(m => ({ ...m, dist: distanciaKm(ubicacion.lat, ubicacion.lng, m.lat, m.lng) }))
+        .sort((a, b) => a.dist - b.dist)
+        .slice(0, 5);
+
+    estado.style.display = 'none';
+    lista.style.display = '';
+    lista.innerHTML = ordenados.map(({ salon, dist }) => `
+        <li class="lista-item">
+            <div>
+                <strong>${salon.nombre}</strong> — ${dist.toFixed(1)} km<br>
+                <small style="color:var(--color-texto-sec)">👤 ${salon.dueno_nombre || 'Dueño no disponible'} · $${Number(salon.precio).toLocaleString()}</small>
+            </div>
+            <div class="item-acciones">${botonContactar(salon)}</div>
+        </li>
+    `).join('');
 }
 
 function aplicarFiltros() {

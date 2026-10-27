@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block titulo %}EventoSuite — Administra tus salones de eventos{% endblock %}
+{% block contenido %}
+
+<section class="hero">
+    <span class="hero-badge">🎪 Para dueños de salones de eventos</span>
+    <h1>Administra tus salones, <span>reservaciones y pagos</span> en un solo lugar</h1>
+    <p class="subtitulo">
+        Reservaciones sin choques de fecha, contratos en PDF listos para firmar,
+        pagos ordenados y chat directo con tus clientes. Todo desde el celular.
+    </p>
+    <div class="hero-ctas">
+        <a href="/registro" class="btn-primary">Empezar gratis</a>
+        <a href="/precios" class="btn-secondary">Ver precios</a>
+    </div>
+</section>
+
+<div class="features-grid">
+    <div class="feature-card">
+        <span class="emoji">📅</span>
+        <h4>Reservaciones sin choques</h4>
+        <p>El sistema bloquea automáticamente las fechas ya ocupadas de cada salón.</p>
+    </div>
+    <div class="feature-card">
+        <span class="emoji">💰</span>
+        <h4>Control de pagos</h4>
+        <p>Registra anticipos y pagos por reservación, con historial siempre a la mano.</p>
+    </div>
+    <div class="feature-card">
+        <span class="emoji">📄</span>
+        <h4>Contratos en PDF</h4>
+        <p>Genera el contrato de arrendamiento con un clic, listo para imprimir y firmar.</p>
+    </div>
+    <div class="feature-card">
+        <span class="emoji">💬</span>
+        <h4>Chat con tus clientes</h4>
+        <p>Resuelve dudas en tiempo real sin salir de la plataforma.</p>
+    </div>
+    <div class="feature-card">
+        <span class="emoji">🗺️</span>
+        <h4>Mapa y calificaciones</h4>
+        <p>Tus salones visibles en el mapa, con reseñas reales de tus clientes.</p>
+    </div>
+    <div class="feature-card">
+        <span class="emoji">📆</span>
+        <h4>Calendario mensual</h4>
+        <p>Visualiza todos tus eventos del mes de un vistazo, por tipo de evento.</p>
+    </div>
+</div>
+
+<h2 style="text-align:center">Empieza en 3 pasos</h2>
+<div class="pasos">
+    <div class="paso">
+        <div class="paso-num">1</div>
+        <h4>Crea tu cuenta</h4>
+        <p>Regístrate como dueño de salón, gratis y sin tarjeta.</p>
+    </div>
+    <div class="paso">
+        <div class="paso-num">2</div>
+        <h4>Agrega tu salón</h4>
+        <p>Nombre, precio, fotos y ubicación en el mapa.</p>
+    </div>
+    <div class="paso">
+        <div class="paso-num">3</div>
+        <h4>Recibe reservaciones</h4>
+        <p>Gestiona clientes, pagos y contratos desde el mismo panel.</p>
+    </div>
+</div>
+
+<div class="cta-final">
+    <h3>¿Listo para ordenar tu negocio de eventos?</h3>
+    <p>Crea tu cuenta gratis en menos de un minuto.</p>
+    <a href="/registro" class="btn-primary">Crear cuenta gratis</a>
+</div>
+
+{% endblock %}
